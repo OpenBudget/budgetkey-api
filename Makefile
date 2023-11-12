@@ -1,8 +1,7 @@
 .PHONY: all install list release test version
 
 
-PACKAGE := $(shell grep '^PACKAGE =' setup.py | cut -d "'" -f2)
-VERSION := $(shell head -n 1 $(PACKAGE)/VERSION)
+VERSION := '0.0.0'
 
 
 all: list
@@ -21,8 +20,8 @@ release:
 	git push --tags
 
 test:
-	pylama $(PACKAGE)
-	py.test ${PACKAGE}
+	pylama 
+	py.test
 
 version:
 	@echo $(VERSION)
