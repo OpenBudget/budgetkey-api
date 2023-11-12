@@ -6,9 +6,9 @@ DEPLOY_YAML_UPDATE_FILE=values.auto-updated.yaml
 DEPLOY_GIT_EMAIL=budgetkey-deployer@null.void
 DEPLOY_GIT_USER=budgetkey-deployer
 
-DEPLOY_COMMIT_MESSAGE="automatic update of open-budget-data-api"
-DEPLOY_VALUES_CHART_NAME=data-api
-DOCKER_IMAGE=budgetkey/open-budget-data-api
+DEPLOY_COMMIT_MESSAGE="automatic update of budgetkey-api"
+DEPLOY_VALUES_CHART_NAME=api
+DOCKER_IMAGE=budgetkey/budgetkey-api
 
 
 if [ "${1}" == "install" ]; then
