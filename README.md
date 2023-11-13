@@ -5,7 +5,7 @@ This server contains the two main api servers for the BudgetKey website.
 It makes use of these libraries:
 - [APISQL](https://github.com/dataspot/apisql), for providing a read only query API to a DBMS
 - [APIES](https://github.com/OpenBudget/apies), for providing a read only search and fetch API to an ElasticSearch instance
-- [AUTH](://github.com/dataspot/dgp-oauth2), for providing authentication and authorization to the API endpoints
+- [AUTH](https://github.com/dataspot/dgp-oauth2), for providing authentication and authorization to the API endpoints
 
 ## Routes
 
