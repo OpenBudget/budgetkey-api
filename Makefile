@@ -20,6 +20,7 @@ release:
 	git push --tags
 
 test:
+	pip install -r requirements.test.txt
 	pylama 
 	py.test
 
