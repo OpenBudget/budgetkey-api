@@ -9,7 +9,6 @@ ADD requirements.txt .
 RUN pip install -r requirements.txt
 
 ADD server.py .
-ADD prepare.py .
 ADD modules ./modules
 ADD entrypoint.sh .
 
