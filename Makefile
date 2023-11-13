@@ -7,12 +7,11 @@ VERSION := '0.0.0'
 all: list
 
 install:
-	pip install --upgrade -e .[develop]
+	pip install -r requirements.test.txt
+
 
 list:
 	@grep '^\.PHONY' Makefile | cut -d' ' -f2- | tr ' ' '\n'
-
-lint:
 
 release:
 	bash -c '[[ -z `git status -s` ]]'
@@ -20,7 +19,6 @@ release:
 	git push --tags
 
 test:
-	pip install -r requirements.test.txt
 	pylama 
 	py.test
 

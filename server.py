@@ -35,7 +35,7 @@ sess.init_app(app)
 
 
 setup_search(app)
-setup_query(app)
+setup_query(app, cache)
 setup_auth(app)
 
 
