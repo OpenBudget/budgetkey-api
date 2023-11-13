@@ -30,7 +30,6 @@ jobs:
         ./ci.sh script
     - name: Test
       run: |
-        make install
         make test
     - name: Deploy
       env:
