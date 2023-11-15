@@ -65,13 +65,13 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     services = services.split(',')
 
     if 'es' in services:
-        from .modules import setup_search
+        from .modules.search import setup_search
         setup_search(app)
     if 'db' in services:
-        from .modules import setup_query
+        from .modules.query import setup_query
         setup_query(app, cache)
     if 'auth' in services:
-        from .modules import setup_auth
+        from .modules.auth import setup_auth
         setup_auth(app)
 
     app.after_request(add_cache_header)
