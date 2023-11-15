@@ -7,8 +7,6 @@ from flask_cors import CORS
 from flask_caching import Cache
 from flask_session import Session
 
-from .modules import setup_search, setup_query, setup_auth
-
 
 def add_cache_header(response):
     response.cache_control.max_age = 600
@@ -67,10 +65,13 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     services = services.split(',')
 
     if 'es' in services:
+        from .modules import setup_search
         setup_search(app)
     if 'db' in services:
+        from .modules import setup_query
         setup_query(app, cache)
     if 'auth' in services:
+        from .modules import setup_auth
         setup_auth(app)
 
     app.after_request(add_cache_header)
