@@ -38,7 +38,7 @@ def logging_after(response):
     return response
 
 
-def create_flask_app(session_file_dir=None, cache_dir=None):
+def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     app = Flask(__name__)
     log = logging.getLogger(__name__)
     log.setLevel(logging.INFO)
@@ -63,9 +63,15 @@ def create_flask_app(session_file_dir=None, cache_dir=None):
     app.config['SECRET_KEY'] = '-'
     sess.init_app(app)
 
-    setup_search(app)
-    setup_query(app, cache)
-    setup_auth(app)
+    services = services or 'auth,es,lists,db'
+    services = services.split(',')
+
+    if 'es' in services:
+        setup_search(app)
+    if 'db' in services:
+        setup_query(app, cache)
+    if 'auth' in services:
+        setup_auth(app)
 
     app.after_request(add_cache_header)
     app.before_request(logging_before)
