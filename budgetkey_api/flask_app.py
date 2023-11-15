@@ -25,12 +25,16 @@ def logging_after(response):
     total_time = time.perf_counter() - app_ctx.start_time
     time_in_ms = int(total_time * 1000)
     # Log the time taken for the endpoint
+    if time_in_ms > 500:
+        msg = 'SLOW: %-5s ms %4s %s %s' % (
+            time_in_ms, request.method, request.path, dict(request.args)
+        )
     if time_in_ms > 5000:
-        current_app.logger.warning('SLOW: %-5s ms %4s %s %s',
-                                   time_in_ms, request.method, request.path, dict(request.args))
+        current_app.logger.warning(msg)
     elif time_in_ms > 2000:
-        current_app.logger.info('SLOW: %-5s ms %4s %s %s',
-                                time_in_ms, request.method, request.path, dict(request.args))
+        current_app.logger.info(msg)
+    elif time_in_ms > 500:
+        current_app.logger.debug(msg)
     return response
 
 
