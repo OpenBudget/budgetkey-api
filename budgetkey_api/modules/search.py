@@ -84,6 +84,6 @@ def setup_search(app):
         multi_match_type='best_fields',
         multi_match_operator='and',
         text_field_rules=text_rules,
-        debug_queries=True
+        debug_queries=False
     )
     app.register_blueprint(blueprint, url_prefix='/')
