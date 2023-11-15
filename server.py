@@ -17,7 +17,7 @@ CORS(app, supports_credentials=True)
 config = {
     "CACHE_TYPE": "FileSystemCache",  # Flask-Caching related configs
     "CACHE_DEFAULT_TIMEOUT": 600,
-    "CACHE_DIR": ".cache",
+    "CACHE_DIR": "/var/run/budgetkey-api/cache",
     "CACHE_THRESHOLD": 100,
     "CACHE_OPTIONS": {
         "mode": 0o700
@@ -29,7 +29,7 @@ cache.init_app(app)
 
 sess = Session()
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_FILE_DIR'] = '/tmp/sessions'
+app.config['SESSION_FILE_DIR'] = '/var/run/budgetkey-api/sessions'
 app.config['SECRET_KEY'] = '-'
 sess.init_app(app)
 
