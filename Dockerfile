@@ -7,10 +7,11 @@ RUN apt-get update && apt-get install -y htop nano curl procps grep findutils &&
 WORKDIR /app
 
 ADD requirements.txt .
-RUN pip install -r requirements.txt
-
 ADD server.py .
-ADD modules ./modules
+ADD setup.py .
+ADD budgetkey_api ./budgetkey_api
+RUN pip install .
+
 ADD entrypoint.sh .
 
 EXPOSE 5000

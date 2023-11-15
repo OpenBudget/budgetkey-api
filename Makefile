@@ -7,8 +7,8 @@ VERSION := '0.0.0'
 all: list
 
 install:
+	pip install -e .
 	pip install -r requirements.test.txt
-
 
 list:
 	@grep '^\.PHONY' Makefile | cut -d' ' -f2- | tr ' ' '\n'
