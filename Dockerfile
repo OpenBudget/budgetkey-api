@@ -1,6 +1,6 @@
 FROM python:3.11-slim-buster
 
-RUN apt-get update && apt-get install htop nano curl procps grep find && \
+RUN apt-get update && apt-get install -y htop nano curl procps grep findutils && \
     adduser --disabled-password --home /app api && update-ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
