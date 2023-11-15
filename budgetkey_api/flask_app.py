@@ -73,6 +73,9 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     if 'auth' in services:
         from .modules.auth import setup_auth
         setup_auth(app)
+    if 'lists' in services:
+        from .modules.list_manager import setup_list_manager
+        setup_list_manager(app)
 
     app.after_request(add_cache_header)
     app.before_request(logging_before)
