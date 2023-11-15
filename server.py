@@ -2,7 +2,7 @@ import os
 
 from budgetkey_api.flask_app import create_flask_app
 
-app = create_flask_app(os.environ.get('SERVICES'))
+app = create_flask_app(services=os.environ.get('SERVICES'))
 
 if __name__ == '__main__':
     app.run()
