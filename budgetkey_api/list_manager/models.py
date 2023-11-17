@@ -110,21 +110,31 @@ def create_list(list_name, user_id):
 def add_item(list_name, user_id, item):
     with session_scope() as session:
         list_id = session.query(List).filter_by(name=list_name, user_id=user_id).first().id
+        url = item.get('url')
+        title = item.get('title')
+        properties = item.get('properties')
+        assert url and title and isinstance(url, str) and isinstance(title, str)
+        if not isinstance(properties, str):
+            properties = json.dumps(properties)
+
         existing_item = session.query(Item)\
                                .filter_by(list_id=list_id,
-                                          title=item["title"],
-                                          url=item["url"])\
+                                          title=title,
+                                          url=url)\
                                .first()
+
         if existing_item is None:
-            to_add = Item(list_id=list_id, **item)
+            to_add = Item(list_id=list_id, url=url, title=title, properties=properties)
             session.add(to_add)
             ret = to_add
         else:
-            existing_item.properties = item.get('properties')
+            existing_item.properties = properties
             session.add(existing_item)
             ret = existing_item
         session.flush()
-        return object_as_dict(ret)
+        ret = object_as_dict(ret)
+        ret['properties'] = json.loads(ret['properties'])
+        return ret
 
 
 def get_items(list_name, user_id):

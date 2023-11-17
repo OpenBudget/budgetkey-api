@@ -13,7 +13,6 @@ def store(permissions, list_name, item):
     list_rec = get_list(list_name, user_id)
     if not list_rec:
         list_rec = create_list(list_name, user_id)
-    item['properties'] = json.dumps(item.get('properties'))
     added_item = add_item(list_name, user_id, item)
     return dict(
         item_id=added_item['id'],

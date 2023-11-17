@@ -1,6 +1,6 @@
 import os
 
-from budgetkey_api.list_manager import list_manager_blueprint
+from budgetkey_api.list_manager.blueprint import list_manager_blueprint
 
 
 def setup_list_manager(app):
