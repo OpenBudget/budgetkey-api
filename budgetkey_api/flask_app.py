@@ -5,7 +5,6 @@ import time
 from flask import Flask, g as app_ctx, request, current_app
 from flask_cors import CORS
 from flask_caching import Cache
-from flask_session import Session
 
 
 def add_cache_header(response):
@@ -54,12 +53,6 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     }
     cache = Cache(config=config)
     cache.init_app(app)
-
-    session = Session()
-    app.config['SESSION_TYPE'] = 'filesystem'
-    app.config['SESSION_FILE_DIR'] = session_file_dir or '/var/run/budgetkey-api/sessions'
-    app.config['SECRET_KEY'] = 'suchabadsecret'
-    session.init_app(app)
 
     services = services or 'auth,es,lists,db'
     services = services.split(',')
