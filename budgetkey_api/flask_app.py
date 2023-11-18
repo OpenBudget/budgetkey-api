@@ -77,7 +77,7 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     if 'auth' in services:
         log.info("Setting up Auth")
         from .modules.auth import setup_auth
-        setup_auth(app)
+        setup_auth(app, cache)
         log.info("Auth setup complete")
     if 'lists' in services:
         log.info("Setting up Lists")
