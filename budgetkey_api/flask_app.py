@@ -72,7 +72,7 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
         setup_query(app, cache)
     if 'auth' in services:
         from .modules.auth import setup_auth
-        setup_auth(app)
+        setup_auth(app, sess)
     if 'lists' in services:
         from .modules.list_manager import setup_list_manager
         setup_list_manager(app)
