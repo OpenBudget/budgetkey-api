@@ -65,17 +65,25 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     services = services.split(',')
 
     if 'es' in services:
+        log.info("Setting up ES")
         from .modules.search import setup_search
         setup_search(app)
+        log.info("ES setup complete")
     if 'db' in services:
+        log.info("Setting up DB")
         from .modules.query import setup_query
         setup_query(app, cache)
+        log.info("DB setup complete")
     if 'auth' in services:
+        log.info("Setting up Auth")
         from .modules.auth import setup_auth
         setup_auth(app)
+        log.info("Auth setup complete")
     if 'lists' in services:
+        log.info("Setting up Lists")
         from .modules.list_manager import setup_list_manager
         setup_list_manager(app)
+        log.info("Lists setup complete")
 
     app.after_request(add_cache_header)
     app.before_request(logging_before)
