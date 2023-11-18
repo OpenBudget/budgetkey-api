@@ -8,7 +8,6 @@ if __name__ == '__main__':
     app.run()
 else:
     import logging
-    import sys
     gunicorn_error_logger = logging.getLogger('gunicorn.error')
 
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
