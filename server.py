@@ -15,6 +15,6 @@ else:
     app.logger.info('SERVER STARTING')
 
     # Uncomment to enable debug logging for dgp-oauth2
-    # dgp_auth_logger = logging.getLogger('dgp-oauth2')
-    # dgp_auth_logger.setLevel(logging.DEBUG)
-    # dgp_auth_logger.handlers.extend(gunicorn_error_logger.handlers)
+    dgp_auth_logger = logging.getLogger('dgp-oauth2')
+    dgp_auth_logger.setLevel(logging.DEBUG)
+    dgp_auth_logger.handlers.extend(gunicorn_error_logger.handlers)
