@@ -4,7 +4,7 @@ import elasticsearch
 
 from apies import apies_blueprint
 
-DATAPACKAGE_BASE = 'pkg-cache/{}.json'
+DATAPACKAGE_BASE = 'pkg-cache/{}/datapackage.json'
 ES_HOST = os.environ.get('ES_HOST', 'localhost')
 ES_PORT = int(os.environ.get('ES_PORT', '9200'))
 INDEX_NAME = os.environ.get('INDEX_NAME', 'budgetkey')
