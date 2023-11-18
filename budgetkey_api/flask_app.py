@@ -42,6 +42,8 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
 
     CORS(app, supports_credentials=True)
 
+    app.secret_key = os.environ['SECRET_KEY']
+
     config = {
         "CACHE_TYPE": "FileSystemCache",  # Flask-Caching related configs
         "CACHE_DEFAULT_TIMEOUT": 600,
