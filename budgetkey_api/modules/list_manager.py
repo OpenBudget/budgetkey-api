@@ -4,8 +4,7 @@ from budgetkey_api.list_manager.blueprint import list_manager_blueprint
 
 
 def setup_list_manager(app):
-    auth_endpoint = f'https://{os.environ["EXTERNAL_ADDRESS"]}/auth/'
-    verifyer_args = dict(auth_endpoint=auth_endpoint)
+    verifyer_args = dict(public_key=os.environ['PUBLIC_KEY'])
 
     app.register_blueprint(
         list_manager_blueprint(verifyer_args=verifyer_args),
