@@ -49,7 +49,7 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
         "CACHE_TYPE": "FileSystemCache",  # Flask-Caching related configs
         "CACHE_DEFAULT_TIMEOUT": 600,
         "CACHE_DIR": cache_dir or "/var/run/budgetkey-api/cache",
-        "CACHE_THRESHOLD": 100,
+        "CACHE_THRESHOLD": 10000,
         "CACHE_OPTIONS": {
             "mode": 0o700
         },
