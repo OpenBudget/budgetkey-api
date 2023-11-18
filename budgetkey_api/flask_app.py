@@ -5,6 +5,7 @@ import os
 from flask import Flask, g as app_ctx, request, current_app
 from flask_cors import CORS
 from flask_caching import Cache
+from flask_session import Session
 
 
 def add_cache_header(response):
