@@ -10,5 +10,8 @@ else:
     import logging
     gunicorn_error_logger = logging.getLogger('gunicorn.error')
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
+    dgp_auth_logger = logging.getLogger('dgp-oauth2')
+    dgp_auth_logger.setLevel(logging.DEBUG)
+    app.logger.handlers.extend(dgp_auth_logger.handlers)
     app.logger.setLevel(logging.DEBUG)
     app.logger.info('SERVER STARTING')
