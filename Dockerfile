@@ -8,6 +8,7 @@ WORKDIR /app
 
 ADD requirements.txt .
 ADD server.py .
+ADD prepare.py .
 ADD setup.py .
 ADD budgetkey_api ./budgetkey_api
 RUN pip install .
