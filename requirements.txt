@@ -3,6 +3,7 @@ sqlalchemy
 flask>=2.2.2
 flask-cors
 Flask-Caching
+Flask-Session
 Flask-SQLAlchemy
 psycopg2-binary
 apies>=1.10.1

@@ -56,6 +56,11 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     cache = Cache(config=config)
     cache.init_app(app)
 
+    session = Session()
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SESSION_FILE_DIR'] = session_file_dir or '/var/run/budgetkey-api/sessions'
+    session.init_app(app)
+
     services = services or 'auth,es,lists,db'
     services = services.split(',')
 
