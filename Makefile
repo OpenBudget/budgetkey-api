@@ -19,7 +19,8 @@ release:
 	git push --tags
 
 test:
-	pylama 
+	pylama
+	python prepare.py
 	py.test
 
 version:
