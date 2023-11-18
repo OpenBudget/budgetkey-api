@@ -55,11 +55,11 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     cache = Cache(config=config)
     cache.init_app(app)
 
-    sess = Session()
+    session = Session()
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_FILE_DIR'] = session_file_dir or '/var/run/budgetkey-api/sessions'
-    app.config['SECRET_KEY'] = '-'
-    sess.init_app(app)
+    app.config['SECRET_KEY'] = 'suchabadsecret'
+    session.init_app(app)
 
     services = services or 'auth,es,lists,db'
     services = services.split(',')
@@ -72,7 +72,7 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
         setup_query(app, cache)
     if 'auth' in services:
         from .modules.auth import setup_auth
-        setup_auth(app, sess)
+        setup_auth(app)
     if 'lists' in services:
         from .modules.list_manager import setup_list_manager
         setup_list_manager(app)
