@@ -9,5 +9,5 @@ def setup_list_manager(app):
 
     app.register_blueprint(
         list_manager_blueprint(verifyer_args=verifyer_args),
-        url_prefix='/list/'
+        url_prefix='/lists/'
     )
