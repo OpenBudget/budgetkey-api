@@ -1,14 +1,13 @@
-from dgp_oauth2.lib import Verifyer
+import logging
 
 from flask import Blueprint, request
+
+from dgp_oauth2.lib import Verifyer
 
 from .models import Models
 from .controllers import Controllers
 
 from .config import db_connection_string
-
-import logging
-
 
 def list_manager_blueprint(verifyer_args=None, enable_mock_oauth=None): #noqa
     """Create blueprint.
@@ -34,15 +33,19 @@ def list_manager_blueprint(verifyer_args=None, enable_mock_oauth=None): #noqa
                 permissions = False
         return permissions
 
-    def store_():
+    def store_item():
         permissions = get_permissions()
         if permissions is False:
             return PERMISSION_DENIED
         list_name = request.values.get('list')
-        item = request.get_json()
-        if None in (list_name, item):
+        update_self = request.values.get('self')
+        body = request.get_json()
+        if None in (list_name, body):
             return dict(success=False, error='missing required parameter'), 400
-        return controllers.store(permissions, list_name, item)
+        if update_self:
+            return controllers.store_list(permissions, list_name, body)
+        else:
+            return controllers.store_item(permissions, list_name, body)
 
     def read_():
         permissions = get_permissions()
@@ -67,7 +70,7 @@ def list_manager_blueprint(verifyer_args=None, enable_mock_oauth=None): #noqa
 
     # Register routes
     blueprint.add_url_rule(
-        '/', 'put', store_, methods=['PUT'])
+        '/', 'put', store_item, methods=['PUT'])
     blueprint.add_url_rule(
         '/', 'delete', delete_, methods=['DELETE'])
     blueprint.add_url_rule(

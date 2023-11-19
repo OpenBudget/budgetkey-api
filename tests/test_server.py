@@ -1,8 +1,5 @@
 import time
 from flask import Flask
-import dotenv
-
-dotenv.load_dotenv('tests/sample.env')
 
 
 def wait(seconds):

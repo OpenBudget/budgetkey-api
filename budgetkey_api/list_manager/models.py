@@ -4,8 +4,9 @@ from contextlib import contextmanager
 
 from sqlalchemy import inspect
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql import func
 
-from sqlalchemy import Column, Unicode, String, create_engine, Integer
+from sqlalchemy import Column, Unicode, String, create_engine, Integer, TIMESTAMP
 from sqlalchemy.orm import sessionmaker
 
 # ## SQL DB
@@ -13,13 +14,13 @@ Base = declarative_base()
 
 
 def object_as_dict(obj):
-    return {c.key: getattr(obj, c.key)
-            for c in inspect(obj).mapper.column_attrs}
-
-
-def parse_properties(item):
-    item['properties'] = json.loads(item['properties'])
-    return item
+    if obj is None:
+        return None
+    ret = {c.key: getattr(obj, c.key)
+           for c in inspect(obj).mapper.column_attrs}
+    if isinstance(ret.get('properties'), str):
+        ret['properties'] = json.loads(ret['properties'])
+    return ret
 
 
 class List(Base):
@@ -28,6 +29,10 @@ class List(Base):
     id = Column(Integer, primary_key=True,)
     name = Column(Unicode)
     user_id = Column(String(128))
+    title = Column(Unicode)
+    properties = Column(Unicode)
+    create_time = Column(TIMESTAMP, server_default=func.now())
+    update_time = Column(TIMESTAMP, server_default=func.now(), onupdate=func.current_timestamp())
 
 
 class Item(Base):
@@ -38,6 +43,8 @@ class Item(Base):
     url = Column(String(512))
     title = Column(Unicode)
     properties = Column(Unicode)
+    create_time = Column(TIMESTAMP, server_default=func.now())
+    update_time = Column(TIMESTAMP, server_default=func.now(), onupdate=func.current_timestamp())
 
 
 class Models():
@@ -69,15 +76,15 @@ class Models():
     def get_list(self, list_name, user_id):
         with self.session_scope() as session:
             ret = session.query(List).filter_by(name=list_name, user_id=user_id).first()
-            return object_as_dict(ret) if ret else None
+            return object_as_dict(ret)
 
     def get_list_by_item(self, item_id):
         with self.session_scope() as session:
-            item = session.query(Item).get(item_id)
+            item = session.get(Item, item_id)
             ret = None
             if item:
-                ret = session.query(List).get(item.list_id)
-            return object_as_dict(ret) if ret else None
+                ret = session.get(List, item.list_id)
+            return object_as_dict(ret)
 
     def create_list(self, list_name, user_id):
         with self.session_scope() as session:
@@ -85,6 +92,19 @@ class Models():
             session.add(to_add)
             session.flush()
             return object_as_dict(to_add)
+
+    def update_list(self, list_id, rec):
+        with self.session_scope() as session:
+            list_rec = session.get(List, list_id)
+            if list_rec:
+                title = rec.get('title')
+                properties = rec.get('properties')
+                if not isinstance(properties, str):
+                    properties = json.dumps(properties)
+                list_rec.title = title
+                list_rec.properties = properties
+                session.add(list_rec)
+                return object_as_dict(list_rec)
 
     def add_item(self, list_name, user_id, item):
         with self.session_scope() as session:
@@ -112,9 +132,7 @@ class Models():
                 session.add(existing_item)
                 ret = existing_item
             session.flush()
-            ret = object_as_dict(ret)
-            ret['properties'] = json.loads(ret['properties'])
-            return ret
+            return object_as_dict(ret)
 
     def get_items(self, list_name, user_id):
         with self.session_scope() as session:
@@ -122,17 +140,15 @@ class Models():
             if not list_id:
                 return []
             list_id = list_id.id
-            return list(map(parse_properties,
-                            map(object_as_dict,
-                                session.query(Item).filter_by(list_id=list_id))))
+            return list(map(object_as_dict,
+                            session.query(Item).filter_by(list_id=list_id)))
 
     def get_all_items(self, user_id):
         with self.session_scope() as session:
             lists = session.query(List).filter_by(user_id=user_id).all()
             list_ids = [lst.id for lst in lists]
-            return list(map(parse_properties,
-                            map(object_as_dict,
-                                session.query(Item).filter(Item.list_id.in_(list_ids)))))
+            return list(map(object_as_dict,
+                            session.query(Item).filter(Item.list_id.in_(list_ids))))
 
     def get_all_lists(self, user_id):
         with self.session_scope() as session:
