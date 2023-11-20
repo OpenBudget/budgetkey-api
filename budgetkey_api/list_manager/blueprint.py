@@ -53,7 +53,8 @@ def list_manager_blueprint(verifyer_args=None, enable_mock_oauth=None): #noqa
             return PERMISSION_DENIED
         list_name = request.values.get('list')
         items = bool(request.values.get('items'))
-        return controllers.get(permissions, list_name, items)
+        kind = request.values.get('kind')
+        return controllers.get(permissions, list_name, items, kind)
 
     def delete_():
         permissions = get_permissions()

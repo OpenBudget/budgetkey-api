@@ -1,10 +1,13 @@
+from budgetkey_api.list_manager.models import Models
+
+
 FAILED = dict(success=False)
 SUCCESS = dict(success=True)
 
 
 class Controllers():
 
-    def __init__(self, models):
+    def __init__(self, models: Models):
         self.models = models
 
     def store_item(self, permissions, list_name, item):
@@ -32,7 +35,7 @@ class Controllers():
             id=list_rec['id']
         )
 
-    def get(self, permissions, list_name, items):
+    def get(self, permissions, list_name, items, kind):
         user_id = permissions.get('userid')
         if not user_id:
             return FAILED
@@ -48,9 +51,9 @@ class Controllers():
             return self.process_dates(list_rec)
         else:
             if items:
-                return self.process_dates(self.models.get_all_items(user_id))
+                return self.process_dates(self.models.get_all_items(user_id, kind))
             else:
-                return self.process_dates(self.models.get_all_lists(user_id))
+                return self.process_dates(self.models.get_all_lists(user_id, kind))
 
     def delete(self, permissions, item_id):
         user_id = permissions.get('userid')

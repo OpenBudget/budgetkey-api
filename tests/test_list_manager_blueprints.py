@@ -1,5 +1,6 @@
 from .consts import (
-    LISTNAME, LISTNAME2, LISTNAME3, USERID, USERID2, ITEM, ITEMS, LISTMETA, CONTROLLERS_OUTITEMS, time_checker, setup_db
+    LISTNAME, LISTNAME2, LISTNAME3, USERID, USERID2, ITEM, ITEMS, LISTKIND,
+    LISTMETA, LISTNOMETA, CONTROLLERS_OUTITEMS, time_checker, setup_db
 )
 
 import os
@@ -15,10 +16,10 @@ BLUEPRINT_SCRIPT = [
         for i, item in enumerate(ITEMS)
     ],
     ('get', dict(list=LISTNAME, items='yes'), None,
-     dict(id=1, items=CONTROLLERS_OUTITEMS, name=LISTNAME, title=None, properties=None)),
+     dict(id=1, items=CONTROLLERS_OUTITEMS, name=LISTNAME, **LISTNOMETA)),
     ('delete', dict(list=LISTNAME, item_id=2), None, dict(success=True)),
     ('get', dict(list=LISTNAME, items='true'), None,
-     dict(id=1, name=LISTNAME, items=[CONTROLLERS_OUTITEMS[0], CONTROLLERS_OUTITEMS[2]], title=None, properties=None)),
+     dict(id=1, name=LISTNAME, items=[CONTROLLERS_OUTITEMS[0], CONTROLLERS_OUTITEMS[2]], **LISTNOMETA)),
     ('delete', dict(list=LISTNAME, item_id='all'), None, dict(success=True)),
     ('get', dict(list=LISTNAME), None, dict(success=False)),
     ('put', dict(list=LISTNAME2, self=True), {'title': 'stub', 'properties': [1, 2, 3]}, dict(id=2)),
@@ -34,11 +35,21 @@ BLUEPRINT_SCRIPT = [
         dict(id=4, list_id=2, **ITEM),
         dict(id=5, list_id=3, **ITEM),
     ]),
+    ('get', dict(items=True, kind=LISTKIND), None, [
+        dict(id=4, list_id=2, **ITEM),
+    ]),
+    ('get', dict(), None, [
+        dict(id=2, name=LISTNAME2, **LISTMETA),
+        dict(id=3, name=LISTNAME3, **LISTNOMETA),
+    ]),
+    ('get', dict(kind=LISTKIND), None, [
+        dict(id=2, name=LISTNAME2, **LISTMETA),
+    ]),
     ('delete', dict(list=LISTNAME2, item_id='all'), None, dict(success=True)),
     ('get', dict(items=True), None, [
         dict(id=5, list_id=3, **ITEM),
     ]),
-    ('get', dict(), None, [dict(id=3, name=LISTNAME3, title=None, properties=None)]),
+    ('get', dict(), None, [dict(id=3, name=LISTNAME3, **LISTNOMETA)]),
     ('delete', dict(list=LISTNAME3), None, dict(success=False, error='missing required parameter'),
         dict(expected_status=400)),
     ('delete', dict(item_id=6), None, dict(success=False, error='missing required parameter'),
@@ -59,7 +70,7 @@ BLUEPRINT_SCRIPT = [
     ('delete', dict(list=LISTNAME3, item_id=6), None, dict(success=False, error='permission denied'),
         dict(user_id=None)),
     ('get', dict(list=LISTNAME, items=True), None,
-     dict(id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], title=None, properties=None),
+     dict(id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTNOMETA),
      dict(user_id=USERID2)),
 ]
 
@@ -89,11 +100,10 @@ def single_request(client, method, kwargs, body, expected, expected_status=200, 
     return func
 
 
-os.environ['PRIVATE_KEY'] = 'stub'
-setup_db('blueprint', env=True)
-
-
 def run():
+    os.environ['PRIVATE_KEY'] = 'stub'
+    setup_db('blueprint', env=True)
+
     from budgetkey_api.list_manager import blueprint
 
     app = Flask('test')

@@ -29,6 +29,7 @@ class List(Base):
     id = Column(Integer, primary_key=True,)
     name = Column(Unicode)
     user_id = Column(String(128))
+    kind = Column(String(16))
     title = Column(Unicode)
     properties = Column(Unicode)
     create_time = Column(TIMESTAMP, server_default=func.now())
@@ -99,10 +100,12 @@ class Models():
             if list_rec:
                 title = rec.get('title')
                 properties = rec.get('properties')
+                kind = rec.get('kind')
                 if not isinstance(properties, str):
                     properties = json.dumps(properties)
                 list_rec.title = title
                 list_rec.properties = properties
+                list_rec.kind = kind
                 session.add(list_rec)
                 return object_as_dict(list_rec)
 
@@ -143,16 +146,20 @@ class Models():
             return list(map(object_as_dict,
                             session.query(Item).filter_by(list_id=list_id)))
 
-    def get_all_items(self, user_id):
+    def get_all_items(self, user_id, kind=None):
         with self.session_scope() as session:
-            lists = session.query(List).filter_by(user_id=user_id).all()
+            lists = session.query(List).filter_by(user_id=user_id)
+            if kind:
+                lists = lists.filter_by(kind=kind)
             list_ids = [lst.id for lst in lists]
             return list(map(object_as_dict,
                             session.query(Item).filter(Item.list_id.in_(list_ids))))
 
-    def get_all_lists(self, user_id):
+    def get_all_lists(self, user_id, kind=None):
         with self.session_scope() as session:
             ret = session.query(List).filter_by(user_id=user_id)
+            if kind:
+                ret = ret.filter_by(kind=kind)
             ret = [
                 object_as_dict(rec) for rec in ret
             ] if ret else None

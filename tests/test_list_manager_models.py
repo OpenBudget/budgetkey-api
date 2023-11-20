@@ -1,7 +1,8 @@
 import datetime
 
 from .consts import (
-    LISTNAME, LISTNAME2, LISTNAME3, USERID, USERID2, ITEM, ITEMS, LISTMETA, time_checker, setup_db
+    LISTNAME, LISTNAME2, LISTNAME3, USERID, USERID2, ITEM, ITEMS,
+    LISTMETA, LISTNOMETA, LISTKIND, time_checker, setup_db
 )
 
 
@@ -24,7 +25,7 @@ MODEL_OUTITEMS = [
 MODELS_SCRIPT = [
     ('get_list', dict(list_name=LISTNAME, user_id=USERID), None),
     ('create_list', dict(list_name=LISTNAME, user_id=USERID),
-     dict(id=1, name=LISTNAME, user_id=USERID, properties=None, title=None)),
+     dict(id=1, name=LISTNAME, user_id=USERID, **LISTNOMETA)),
     ('add_item', dict(list_name=LISTNAME, user_id=USERID, item=ITEM), dict(id=1, list_id=1, **ITEM)),
     *[
         ('add_item', dict(list_name=LISTNAME, user_id=USERID, item=item), outitem)
@@ -36,12 +37,17 @@ MODELS_SCRIPT = [
     ('delete_list', dict(list_id=1), None),
     ('get_items', dict(list_name=LISTNAME, user_id=USERID), []),
     ('create_list', dict(list_name=LISTNAME2, user_id=USERID),
-     dict(id=2, name=LISTNAME2, user_id=USERID, properties=None, title=None)),
+     dict(id=2, name=LISTNAME2, user_id=USERID, **LISTNOMETA)),
     ('create_list', dict(list_name=LISTNAME3, user_id=USERID),
-     dict(id=3, name=LISTNAME3, user_id=USERID, properties=None, title=None)),
+     dict(id=3, name=LISTNAME3, user_id=USERID, **LISTNOMETA)),
     ('update_list', dict(list_id=3, rec=LISTMETA), dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA)),
     ('get_all_lists', dict(user_id=USERID), [
-        dict(id=2, name=LISTNAME2, properties=None, title=None),
+        dict(id=2, name=LISTNAME2, **LISTNOMETA),
+        dict(id=3, name=LISTNAME3, **LISTMETA),
+    ]),
+    ('get_all_lists', dict(user_id=USERID2), [
+    ]),
+    ('get_all_lists', dict(user_id=USERID, kind=LISTKIND), [
         dict(id=3, name=LISTNAME3, **LISTMETA),
     ]),
     ('get_list', dict(list_name=LISTNAME3, user_id=USERID), dict(id=3, name=LISTNAME3, user_id=USERID,  **LISTMETA)),
@@ -50,6 +56,7 @@ MODELS_SCRIPT = [
     ('add_item', dict(list_name=LISTNAME2, user_id=USERID, item=ITEM), dict(id=4, list_id=2, **ITEM)),
     ('add_item', dict(list_name=LISTNAME3, user_id=USERID, item=ITEM), dict(id=5, list_id=3, **ITEM)),
     ('get_all_items', dict(user_id=USERID), [dict(id=4, list_id=2, **ITEM), dict(id=5, list_id=3, **ITEM)]),
+    ('get_all_items', dict(user_id=USERID, kind=LISTKIND), [dict(id=5, list_id=3, **ITEM)]),
     ('delete_list', dict(list_id=2), None),
     ('get_all_items', dict(user_id=USERID), [dict(id=5, list_id=3, **ITEM)]),
     ('get_all_lists', dict(user_id=USERID), [
