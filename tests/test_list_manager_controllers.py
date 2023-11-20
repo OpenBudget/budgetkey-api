@@ -3,7 +3,7 @@ import datetime
 from budgetkey_api.list_manager.controllers import Controllers
 from .consts import (
     LISTNAME, LISTNAME2, LISTNAME3, USERID, ITEM, ITEMS, LISTMETA, LISTNOMETA,
-    LISTKIND, CONTROLLERS_OUTITEMS, time_checker, setup_db
+    LISTKIND, CONTROLLERS_OUTITEMS, MOCK_UUID, time_checker, setup_db
 )
 
 
@@ -20,9 +20,11 @@ def single_test(obj, method, kwargs, expected):
 
 PERMISSIONS = dict(userid=USERID)
 CONTROLLERS_SCRIPT = [
-    ('store_item', dict(list_name=LISTNAME, permissions=PERMISSIONS, item=ITEM), dict(item_id=1, list_id=1)),
+    ('store_item', dict(list_name=LISTNAME, permissions=PERMISSIONS, item=ITEM),
+     dict(item_id=1, list_id=1, list_name=LISTNAME)),
     *[
-        ('store_item', dict(list_name=LISTNAME, permissions=PERMISSIONS, item=item), dict(item_id=i + 1, list_id=1))
+        ('store_item', dict(list_name=LISTNAME, permissions=PERMISSIONS, item=item),
+         dict(item_id=i + 1, list_id=1, list_name=LISTNAME))
         for i, item in enumerate(ITEMS)
     ],
     ('get', dict(list_name=LISTNAME, permissions={}, items=False, kind=None), dict(success=False)),
@@ -38,13 +40,16 @@ CONTROLLERS_SCRIPT = [
     ('delete_all', dict(list_name=LISTNAME, permissions=PERMISSIONS), dict(success=True)),
     ('get', dict(list_name=LISTNAME, permissions=PERMISSIONS, items=False, kind=None), dict(success=False)),
     ('store_list', dict(list_name=LISTNAME2, permissions=PERMISSIONS, rec=LISTMETA), dict(id=2)),
+    ('store_list', dict(list_name=LISTNAME2, permissions={}, rec=LISTMETA), dict(success=False)),
     ('get', dict(list_name=LISTNAME2, permissions=PERMISSIONS, items=False, kind=None),
      dict(id=2, name=LISTNAME2, **LISTMETA)),
     ('get', dict(list_name=LISTNAME2, permissions=PERMISSIONS, items=True, kind=None),
      dict(id=2, name=LISTNAME2, **LISTMETA, items=[])),
-    ('store_item', dict(list_name=LISTNAME2, permissions=PERMISSIONS, item=ITEM), dict(item_id=4, list_id=2)),
+    ('store_item', dict(list_name=LISTNAME2, permissions=PERMISSIONS, item=ITEM),
+     dict(item_id=4, list_id=2, list_name=LISTNAME2)),
     ('store_item', dict(list_name=LISTNAME3, permissions={}, item=ITEM), dict(success=False)),
-    ('store_item', dict(list_name=LISTNAME3, permissions=PERMISSIONS, item=ITEM), dict(item_id=5, list_id=3)),
+    ('store_item', dict(list_name=LISTNAME3, permissions=PERMISSIONS, item=ITEM),
+     dict(item_id=5, list_id=3, list_name=LISTNAME3)),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=True, kind=None), [
         dict(id=4, list_id=2, **ITEM),
         dict(id=5, list_id=3, **ITEM),
@@ -65,6 +70,8 @@ CONTROLLERS_SCRIPT = [
     ('delete_all', dict(list_name=LISTNAME3, permissions=PERMISSIONS), dict(success=True)),
     ('delete_all', dict(list_name=LISTNAME3 + 'x', permissions=PERMISSIONS), dict(success=False)),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=False, kind=None), []),
+    ('store_item', dict(list_name=None, permissions=PERMISSIONS, item=ITEM),
+     dict(item_id=6, list_id=4, list_name=MOCK_UUID)),
 ]
 
 

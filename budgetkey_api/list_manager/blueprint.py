@@ -40,8 +40,8 @@ def list_manager_blueprint(verifyer_args=None, enable_mock_oauth=None): #noqa
         list_name = request.values.get('list')
         update_self = request.values.get('self')
         body = request.get_json()
-        if None in (list_name, body):
-            return dict(success=False, error='missing required parameter'), 400
+        if body is None:
+            return dict(success=False, error='missing data to store'), 400
         if update_self:
             return controllers.store_list(permissions, list_name, body)
         else:

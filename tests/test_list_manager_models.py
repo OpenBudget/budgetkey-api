@@ -2,7 +2,7 @@ import datetime
 
 from .consts import (
     LISTNAME, LISTNAME2, LISTNAME3, USERID, USERID2, ITEM, ITEMS,
-    LISTMETA, LISTNOMETA, LISTKIND, time_checker, setup_db
+    LISTMETA, LISTNOMETA, LISTKIND, MOCK_UUID, time_checker, setup_db
 )
 
 
@@ -26,9 +26,9 @@ MODELS_SCRIPT = [
     ('get_list', dict(list_name=LISTNAME, user_id=USERID), None),
     ('create_list', dict(list_name=LISTNAME, user_id=USERID),
      dict(id=1, name=LISTNAME, user_id=USERID, **LISTNOMETA)),
-    ('add_item', dict(list_name=LISTNAME, user_id=USERID, item=ITEM), dict(id=1, list_id=1, **ITEM)),
+    ('add_item', dict(list_id=1, item=ITEM), dict(id=1, list_id=1, **ITEM)),
     *[
-        ('add_item', dict(list_name=LISTNAME, user_id=USERID, item=item), outitem)
+        ('add_item', dict(list_id=1, item=item), outitem)
         for item, outitem in zip(ITEMS, MODEL_OUTITEMS)
     ],
     ('get_items', dict(list_name=LISTNAME, user_id=USERID), MODEL_OUTITEMS),
@@ -53,8 +53,8 @@ MODELS_SCRIPT = [
     ('get_list', dict(list_name=LISTNAME3, user_id=USERID), dict(id=3, name=LISTNAME3, user_id=USERID,  **LISTMETA)),
     ('get_list', dict(list_name=LISTNAME3, user_id=USERID2), None),
     ('get_all_items', dict(user_id=USERID), []),
-    ('add_item', dict(list_name=LISTNAME2, user_id=USERID, item=ITEM), dict(id=4, list_id=2, **ITEM)),
-    ('add_item', dict(list_name=LISTNAME3, user_id=USERID, item=ITEM), dict(id=5, list_id=3, **ITEM)),
+    ('add_item', dict(list_id=2, item=ITEM), dict(id=4, list_id=2, **ITEM)),
+    ('add_item', dict(list_id=3, item=ITEM), dict(id=5, list_id=3, **ITEM)),
     ('get_all_items', dict(user_id=USERID), [dict(id=4, list_id=2, **ITEM), dict(id=5, list_id=3, **ITEM)]),
     ('get_all_items', dict(user_id=USERID, kind=LISTKIND), [dict(id=5, list_id=3, **ITEM)]),
     ('delete_list', dict(list_id=2), None),
@@ -64,6 +64,8 @@ MODELS_SCRIPT = [
     ]),
     ('delete_list', dict(list_id=3), None),
     ('get_all_lists', dict(user_id=USERID), []),
+    ('create_list', dict(list_name=None, user_id=USERID, rec=LISTMETA),
+     dict(id=4, name=MOCK_UUID, user_id=USERID, **LISTMETA)),
 ]
 
 

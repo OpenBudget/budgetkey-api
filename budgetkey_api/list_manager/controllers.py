@@ -10,26 +10,31 @@ class Controllers():
     def __init__(self, models: Models):
         self.models = models
 
+    def _get_or_create_list(self, list_name, user_id):
+        list_rec = None
+        if list_name:
+            list_rec = self.models.get_list(list_name, user_id)
+        if not list_rec:
+            list_rec = self.models.create_list(list_name, user_id)
+        return list_rec
+
     def store_item(self, permissions, list_name, item):
         user_id = permissions.get("userid")
         if not user_id:
             return FAILED
-        list_rec = self.models.get_list(list_name, user_id)
-        if not list_rec:
-            list_rec = self.models.create_list(list_name, user_id)
-        added_item = self.models.add_item(list_name, user_id, item)
+        list_rec = self._get_or_create_list(list_name, user_id)
+        added_item = self.models.add_item(list_rec['id'], item)
         return dict(
             item_id=added_item['id'],
-            list_id=list_rec['id']
+            list_id=list_rec['id'],
+            list_name=list_rec['name']
         )
 
     def store_list(self, permissions, list_name, rec):
         user_id = permissions.get("userid")
         if not user_id:
             return FAILED
-        list_rec = self.models.get_list(list_name, user_id)
-        if not list_rec:
-            list_rec = self.models.create_list(list_name, user_id)
+        list_rec = self._get_or_create_list(list_name, user_id)
         self.models.update_list(list_rec['id'], rec)
         return dict(
             id=list_rec['id']
@@ -46,8 +51,6 @@ class Controllers():
             list_rec.pop('user_id')
             if items:
                 list_rec['items'] = self.models.get_items(list_name, user_id)
-            ret = self.process_dates(list_rec)
-            print('ITEMS', ret, list_name, items)
             return self.process_dates(list_rec)
         else:
             if items:

@@ -24,6 +24,11 @@ CONTROLLERS_OUTITEMS = [
     dict(id=i + 1, list_id=1, **item)
     for i, item in enumerate(ITEMS)
 ]
+MOCK_UUID = '7fc2a2e8514746fb9c9a2c6bb02b611e'
+
+
+def mock_uuid(models):
+    models.get_uuid = lambda: MOCK_UUID
 
 
 def setup_db(key, env=False):
@@ -35,8 +40,9 @@ def setup_db(key, env=False):
     if env:
         os.environ['DATABASE_PRIVATE_URL'] = connection_string
     else:
-        from budgetkey_api.list_manager.models import Models
-        return Models(connection_string)
+        from budgetkey_api.list_manager import models
+        mock_uuid(models)
+        return models.Models(connection_string)
 
 
 def time_checker(now, obj):

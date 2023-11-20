@@ -9,8 +9,14 @@ from sqlalchemy.sql import func
 from sqlalchemy import Column, Unicode, String, create_engine, Integer, TIMESTAMP
 from sqlalchemy.orm import sessionmaker
 
+import uuid
+
 # ## SQL DB
 Base = declarative_base()
+
+
+def get_uuid():
+    return uuid.uuid4().hex
 
 
 def object_as_dict(obj):
@@ -87,9 +93,23 @@ class Models():
                 ret = session.get(List, item.list_id)
             return object_as_dict(ret)
 
-    def create_list(self, list_name, user_id):
+    def modify_list_from_rec(self, list_rec, rec):
+        rec = rec or {}
+        title = rec.get('title')
+        properties = rec.get('properties')
+        kind = rec.get('kind')
+        if not isinstance(properties, str):
+            properties = json.dumps(properties)
+        list_rec.title = title
+        list_rec.properties = properties
+        list_rec.kind = kind
+
+    def create_list(self, list_name, user_id, rec=None):
         with self.session_scope() as session:
+            if not list_name:
+                list_name = get_uuid()
             to_add = List(name=list_name, user_id=user_id)
+            self.modify_list_from_rec(to_add, rec)
             session.add(to_add)
             session.flush()
             return object_as_dict(to_add)
@@ -98,20 +118,12 @@ class Models():
         with self.session_scope() as session:
             list_rec = session.get(List, list_id)
             if list_rec:
-                title = rec.get('title')
-                properties = rec.get('properties')
-                kind = rec.get('kind')
-                if not isinstance(properties, str):
-                    properties = json.dumps(properties)
-                list_rec.title = title
-                list_rec.properties = properties
-                list_rec.kind = kind
+                self.modify_list_from_rec(list_rec, rec)
                 session.add(list_rec)
                 return object_as_dict(list_rec)
 
-    def add_item(self, list_name, user_id, item):
+    def add_item(self, list_id, item):
         with self.session_scope() as session:
-            list_id = session.query(List).filter_by(name=list_name, user_id=user_id).first().id
             url = item.get('url')
             title = item.get('title')
             properties = item.get('properties')
