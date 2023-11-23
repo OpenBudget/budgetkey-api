@@ -36,6 +36,7 @@ class List(Base):
     name = Column(Unicode)
     user_id = Column(String(128))
     kind = Column(String(16))
+    visibility = Column(Integer, default=0)
     title = Column(Unicode)
     properties = Column(Unicode)
     create_time = Column(TIMESTAMP, server_default=func.now())
@@ -98,11 +99,13 @@ class Models():
         title = rec.get('title')
         properties = rec.get('properties')
         kind = rec.get('kind')
+        visibility = rec.get('visibility') or 0
         if not isinstance(properties, str):
             properties = json.dumps(properties)
         list_rec.title = title
         list_rec.properties = properties
         list_rec.kind = kind
+        list_rec.visibility = visibility
 
     def create_list(self, list_name, user_id, rec=None):
         with self.session_scope() as session:

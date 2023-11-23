@@ -16,15 +16,15 @@ BLUEPRINT_SCRIPT = [
         for i, item in enumerate(ITEMS)
     ],
     ('get', dict(list=LISTNAME, items='yes'), None,
-     dict(id=1, items=CONTROLLERS_OUTITEMS, name=LISTNAME, **LISTNOMETA)),
+     dict(id=1, items=CONTROLLERS_OUTITEMS, name=LISTNAME, **LISTNOMETA, user_id=USERID)),
     ('delete', dict(list=LISTNAME, item_id=2), None, dict(success=True)),
     ('get', dict(list=LISTNAME, items='true'), None,
-     dict(id=1, name=LISTNAME, items=[CONTROLLERS_OUTITEMS[0], CONTROLLERS_OUTITEMS[2]], **LISTNOMETA)),
+     dict(id=1, name=LISTNAME, items=[CONTROLLERS_OUTITEMS[0], CONTROLLERS_OUTITEMS[2]], **LISTNOMETA, user_id=USERID)),
     ('delete', dict(list=LISTNAME, item_id='all'), None, dict(success=True)),
     ('get', dict(list=LISTNAME), None, dict(success=False)),
     ('put', dict(list=LISTNAME2, self=True), {'title': 'stub', 'properties': [1, 2, 3]}, dict(id=2)),
     ('put', dict(list=LISTNAME2, self=True), LISTMETA, dict(id=2)),
-    ('get', dict(list=LISTNAME2), None, dict(id=2, name=LISTNAME2, **LISTMETA)),
+    ('get', dict(list=LISTNAME2), None, dict(id=2, name=LISTNAME2, **LISTMETA, user_id=USERID)),
     ('put', dict(list=LISTNAME2), ITEM, dict(item_id=4, list_id=2, list_name=LISTNAME2)),
     ('put', dict(), None, dict(success=False, error='missing required parameter'), dict(expected_status=415)),
     ('put', dict(list=LISTNAME3), None, dict(success=False, error='missing required parameter'),
@@ -58,20 +58,50 @@ BLUEPRINT_SCRIPT = [
     ('delete', dict(list=LISTNAME3, item_id='all'), None, dict(success=True)),
     ('get', dict(), None, []),
     ('put', dict(list=LISTNAME), ITEM, dict(item_id=6, list_id=4, list_name=LISTNAME), dict(user_id=USERID2)),
-    ('put', dict(list=LISTNAME), ITEMS[1], dict(success=False, error='permission denied'), dict(user_id=None)),
-    ('get', dict(list=LISTNAME), None, dict(success=False, error='permission denied'), dict(user_id=None)),
+    ('put', dict(list=LISTNAME), ITEMS[1], dict(success=False, error='permission denied'),
+     dict(user_id=None, expected_status=403)),
+    ('get', dict(list=LISTNAME), None, dict(success=False, error='permission denied'),
+     dict(user_id=None, expected_status=403)),
     ('delete', dict(list=LISTNAME3, item_id='all'), None, dict(success=False)),
     ('delete', dict(list=LISTNAME3, item_id=6), None, dict(success=False)),
     ('delete', dict(list=LISTNAME3, item_id=61), None, dict(success=False)),
     ('delete', dict(list=LISTNAME3, item_id=61), None, dict(success=False), dict(user_id=USERID2)),
     ('delete', dict(list=LISTNAME3, item_id='all'), None, dict(success=False, error='permission denied'),
-        dict(user_id=None)),
+        dict(user_id=None, expected_status=403)),
     ('delete', dict(list=LISTNAME3, item_id=6), None, dict(success=False, error='permission denied'),
-        dict(user_id=None)),
+        dict(user_id=None, expected_status=403)),
     ('get', dict(list=LISTNAME, items=True), None,
-     dict(id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTNOMETA),
+     dict(id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTNOMETA, user_id=USERID2),
      dict(user_id=USERID2)),
     ('put', dict(), ITEM, dict(item_id=7, list_id=5, list_name=MOCK_UUID)),
+
+    ('put', dict(list=LISTNAME), ITEM, dict(item_id=8, list_id=6, list_name=LISTNAME)),
+    (
+        'get', dict(list=LISTNAME, items=True), None,
+        dict(id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTNOMETA, user_id=USERID2),
+        dict(user_id=USERID2)
+    ),
+    (
+        'get', dict(list=LISTNAME, items=True), None,
+        dict(id=6, name=LISTNAME, items=[dict(id=8, list_id=6, **ITEM)], **LISTNOMETA, user_id=USERID),
+        dict(user_id=USERID)
+    ),
+    ('get', dict(list=LISTNAME, items=True, user_id=USERID), None, dict(success=False), dict(user_id=USERID2)),
+    ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(success=False), dict(user_id=USERID)),
+    ('put', dict(list=LISTNAME, self=True), LISTMETA, dict(id=4), dict(user_id=USERID2)),
+    ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(
+        id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTMETA, user_id=USERID2
+    ), dict(user_id=USERID)),
+    ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(
+        id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTMETA, user_id=USERID2
+    ), dict(user_id=None)),
+    (
+        'get', dict(list=LISTNAME, items=True, user_id=None), None, dict(success=False, error='permission denied'),
+        dict(user_id=None, expected_status=403)),
+    (
+        'get', dict(list=None, items=True, user_id=USERID2), None, dict(success=False, error='permission denied'),
+        dict(user_id=None, expected_status=403)
+    ),
 ]
 
 
@@ -85,8 +115,6 @@ def single_request(client, method, kwargs, body, expected, expected_status=200, 
         good_status_code = expected_status
         if user_id:
             params['headers'] = {'auth-token': user_id}
-        else:
-            good_status_code = 403
         if kwargs:
             params['query_string'] = kwargs
         if body:

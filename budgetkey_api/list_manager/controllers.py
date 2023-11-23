@@ -40,15 +40,11 @@ class Controllers():
             id=list_rec['id']
         )
 
-    def get(self, permissions, list_name, items, kind):
-        user_id = permissions.get('userid')
-        if not user_id:
-            return FAILED
+    def get_authenticated(self, list_name, user_id, items, kind):
         if list_name:
             list_rec = self.models.get_list(list_name, user_id)
             if not list_rec:
                 return FAILED
-            list_rec.pop('user_id')
             if items:
                 list_rec['items'] = self.models.get_items(list_name, user_id)
             return self.process_dates(list_rec)
@@ -57,6 +53,28 @@ class Controllers():
                 return self.process_dates(self.models.get_all_items(user_id, kind))
             else:
                 return self.process_dates(self.models.get_all_lists(user_id, kind))
+
+    def get_unauthenticated(self, list_name, list_user_id, items):
+        if list_name:
+            list_rec = self.models.get_list(list_name, list_user_id)
+            if not list_rec:
+                return FAILED
+            if not list_rec['visibility']:
+                return FAILED
+            if items:
+                list_rec['items'] = self.models.get_items(list_name, list_user_id)
+            return self.process_dates(list_rec)
+        else:
+            return FAILED
+
+    def get(self, permissions, list_name, items, kind, list_user_id):
+        user_id = permissions.get('userid')
+        if list_user_id:
+            return self.get_unauthenticated(list_name, list_user_id, items)
+        elif user_id:
+            return self.get_authenticated(list_name, user_id, items, kind, )
+        else:
+            return FAILED
 
     def delete(self, permissions, item_id):
         user_id = permissions.get('userid')
