@@ -1,14 +1,14 @@
 import os
 
 from apisql import apisql_blueprint
+from .caching import add_cache_header
 
 
 MAX_ROWS = int(os.environ.get('MAX_ROWS', 1000))
 
 
 def setup_query(app, cache):
-    app.register_blueprint(
-        apisql_blueprint(connection_string=os.environ['DATABASE_READONLY_URL'],
-                         max_rows=MAX_ROWS, debug=False, cache=cache),
-        url_prefix='/api/'
-    )
+    bp = apisql_blueprint(connection_string=os.environ['DATABASE_READONLY_URL'],
+                          max_rows=MAX_ROWS, debug=False, cache=cache)
+    add_cache_header(bp, 3600)
+    app.register_blueprint(bp, url_prefix='/api/')

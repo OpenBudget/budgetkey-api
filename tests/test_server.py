@@ -27,6 +27,11 @@ def test_server_init():
 
     resp = client.get('/lists/')
     assert resp.status_code == 403
+    assert resp.headers.get('Cache-Control') is None
+
+    resp = client.get('/api/query?query=select *')
+    assert resp.status_code == 200
+    assert resp.headers['Cache-Control'] == 'max-age=3600'
 
     resp = client.get('/wait/1')
     assert resp.status_code == 200

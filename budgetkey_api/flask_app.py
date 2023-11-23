@@ -8,11 +8,6 @@ from flask_caching import Cache
 from flask_session import Session
 
 
-def add_cache_header(response):
-    response.cache_control.max_age = 600
-    return response
-
-
 def logging_before():
     # Store the start time for the request
     app_ctx.start_time = time.perf_counter()
@@ -86,7 +81,6 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
         setup_list_manager(app)
         log.info("Lists setup complete")
 
-    app.after_request(add_cache_header)
     app.before_request(logging_before)
     app.after_request(logging_after)
 

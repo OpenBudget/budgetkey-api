@@ -4,6 +4,8 @@ import elasticsearch
 
 from apies import apies_blueprint
 
+from .caching import add_cache_header
+
 DATAPACKAGE_BASE = 'pkg-cache/{}/datapackage.json'
 ES_HOST = os.environ.get('ES_HOST', 'localhost')
 ES_PORT = int(os.environ.get('ES_PORT', '9200'))
@@ -85,4 +87,5 @@ def setup_search(app):
         text_field_rules=text_rules,
         debug_queries=False
     )
+    add_cache_header(blueprint, 600)
     app.register_blueprint(blueprint, url_prefix='/')
