@@ -103,7 +103,7 @@ class Controllers():
         if isinstance(obj, dict):
             return dict(
                 (k, self.process_dates(v))
-                if k not in ('create_time', 'update_time') or not isinstance(v, datetime.datetime)
+                if k not in ('create_time', 'update_time') or not isinstance(v, datetime)
                 else (k, v.isoformat())
                 for k, v in obj.items()
             )
