@@ -178,8 +178,6 @@ class Models():
             ret = [
                 object_as_dict(rec) for rec in ret
             ] if ret else None
-            if ret:
-                [rec.pop('user_id') for rec in ret]
             return ret
 
     def delete_item(self, item_id):

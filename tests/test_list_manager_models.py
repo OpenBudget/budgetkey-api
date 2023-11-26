@@ -42,13 +42,13 @@ MODELS_SCRIPT = [
      dict(id=3, name=LISTNAME3, user_id=USERID, **LISTNOMETA)),
     ('update_list', dict(list_id=3, rec=LISTMETA), dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA)),
     ('get_all_lists', dict(user_id=USERID), [
-        dict(id=2, name=LISTNAME2, **LISTNOMETA),
-        dict(id=3, name=LISTNAME3, **LISTMETA),
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTNOMETA),
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA),
     ]),
     ('get_all_lists', dict(user_id=USERID2), [
     ]),
     ('get_all_lists', dict(user_id=USERID, kind=LISTKIND), [
-        dict(id=3, name=LISTNAME3, **LISTMETA),
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA),
     ]),
     ('get_list', dict(list_name=LISTNAME3, user_id=USERID), dict(id=3, name=LISTNAME3, user_id=USERID,  **LISTMETA)),
     ('get_list', dict(list_name=LISTNAME3, user_id=USERID2), None),
@@ -60,7 +60,7 @@ MODELS_SCRIPT = [
     ('delete_list', dict(list_id=2), None),
     ('get_all_items', dict(user_id=USERID), [dict(id=5, list_id=3, **ITEM)]),
     ('get_all_lists', dict(user_id=USERID), [
-        dict(id=3, name=LISTNAME3, **LISTMETA),
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA),
     ]),
     ('delete_list', dict(list_id=3), None),
     ('get_all_lists', dict(user_id=USERID), []),

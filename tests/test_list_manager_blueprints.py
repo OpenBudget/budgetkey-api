@@ -38,17 +38,17 @@ BLUEPRINT_SCRIPT = [
         dict(id=4, list_id=2, **ITEM),
     ]),
     ('get', dict(), None, [
-        dict(id=2, name=LISTNAME2, **LISTMETA),
-        dict(id=3, name=LISTNAME3, **LISTNOMETA),
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA),
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTNOMETA),
     ]),
     ('get', dict(kind=LISTKIND), None, [
-        dict(id=2, name=LISTNAME2, **LISTMETA),
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA),
     ]),
     ('delete', dict(list=LISTNAME2, item_id='all'), None, dict(success=True)),
     ('get', dict(items=True), None, [
         dict(id=5, list_id=3, **ITEM),
     ]),
-    ('get', dict(), None, [dict(id=3, name=LISTNAME3, **LISTNOMETA)]),
+    ('get', dict(), None, [dict(id=3, name=LISTNAME3, user_id=USERID, **LISTNOMETA)]),
     ('delete', dict(list=LISTNAME3), None, dict(success=False, error='missing required parameter'),
         dict(expected_status=400)),
     ('delete', dict(item_id=6), None, dict(success=False, error='missing required parameter'),

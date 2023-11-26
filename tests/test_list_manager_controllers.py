@@ -82,18 +82,18 @@ CONTROLLERS_SCRIPT = [
         dict(id=4, list_id=2, **ITEM),
     ]),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=False, kind=None, list_user_id=None), [
-        dict(id=2, name=LISTNAME2, **LISTMETA),
-        dict(id=3, name=LISTNAME3, **LISTNOMETA)
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA),
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTNOMETA)
     ]),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=False, kind=LISTKIND, list_user_id=None), [
-        dict(id=2, name=LISTNAME2, **LISTMETA),
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA),
     ]),
     ('delete_all', dict(list_name=LISTNAME2, permissions=PERMISSIONS), dict(success=True)),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=True, kind=None, list_user_id=None), [
         dict(id=5, list_id=3, **ITEM),
     ]),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=False, kind=None, list_user_id=None),
-     [dict(id=3, name=LISTNAME3, **LISTNOMETA)]),
+     [dict(id=3, name=LISTNAME3, user_id=USERID, **LISTNOMETA)]),
     ('delete_all', dict(list_name=LISTNAME3, permissions=PERMISSIONS), dict(success=True)),
     ('delete_all', dict(list_name=LISTNAME3 + 'x', permissions=PERMISSIONS), dict(success=False)),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=False, kind=None, list_user_id=None), []),
