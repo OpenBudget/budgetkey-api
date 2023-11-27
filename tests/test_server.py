@@ -27,7 +27,7 @@ def test_server_init():
 
     resp = client.get('/lists/')
     assert resp.status_code == 403
-    assert resp.headers.get('Cache-Control') is None
+    assert resp.headers.get('Cache-Control') == 'no-cache'
 
     resp = client.get('/api/query?query=select *')
     assert resp.status_code == 200
