@@ -159,7 +159,7 @@ class Models():
                 return []
             list_id = list_id.id
             return list(map(object_as_dict,
-                            session.query(Item).filter_by(list_id=list_id)))
+                            session.query(Item).filter_by(list_id=list_id).order_by(Item.create_time)))
 
     def get_all_items(self, user_id, kind=None):
         with self.session_scope() as session:
@@ -168,7 +168,7 @@ class Models():
                 lists = lists.filter_by(kind=kind)
             list_ids = [lst.id for lst in lists]
             return list(map(object_as_dict,
-                            session.query(Item).filter(Item.list_id.in_(list_ids))))
+                            session.query(Item).filter(Item.list_id.in_(list_ids)).order_by(Item.create_time)))
 
     def get_all_lists(self, user_id, kind=None):
         with self.session_scope() as session:
