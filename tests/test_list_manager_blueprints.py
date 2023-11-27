@@ -10,9 +10,9 @@ import datetime
 from flask import Flask
 
 BLUEPRINT_SCRIPT = [
-    ('put', dict(list=LISTNAME), ITEM, dict(item_id=1, list_id=1, list_name=LISTNAME)),
+    ('put', dict(list=LISTNAME), ITEM, dict(id=1, list_id=1, list_name=LISTNAME, **ITEM)),
     *[
-        ('put', dict(list=LISTNAME), item, dict(item_id=i + 1, list_id=1, list_name=LISTNAME))
+        ('put', dict(list=LISTNAME), item, dict(id=i + 1, list_id=1, list_name=LISTNAME, **item))
         for i, item in enumerate(ITEMS)
     ],
     ('get', dict(list=LISTNAME, items='yes'), None,
@@ -25,11 +25,11 @@ BLUEPRINT_SCRIPT = [
     ('put', dict(list=LISTNAME2, self=True), {'title': 'stub', 'properties': [1, 2, 3]}, dict(id=2)),
     ('put', dict(list=LISTNAME2, self=True), LISTMETA, dict(id=2)),
     ('get', dict(list=LISTNAME2), None, dict(id=2, name=LISTNAME2, **LISTMETA, user_id=USERID)),
-    ('put', dict(list=LISTNAME2), ITEM, dict(item_id=4, list_id=2, list_name=LISTNAME2)),
+    ('put', dict(list=LISTNAME2), ITEM, dict(id=4, list_id=2, list_name=LISTNAME2, **ITEM)),
     ('put', dict(), None, dict(success=False, error='missing required parameter'), dict(expected_status=415)),
     ('put', dict(list=LISTNAME3), None, dict(success=False, error='missing required parameter'),
         dict(expected_status=415)),
-    ('put', dict(list=LISTNAME3), ITEM, dict(item_id=5, list_id=3, list_name=LISTNAME3)),
+    ('put', dict(list=LISTNAME3), ITEM, dict(id=5, list_id=3, list_name=LISTNAME3, **ITEM)),
     ('get', dict(items=True), None, [
         dict(id=4, list_id=2, **ITEM),
         dict(id=5, list_id=3, **ITEM),
@@ -57,7 +57,7 @@ BLUEPRINT_SCRIPT = [
         dict(expected_status=400)),
     ('delete', dict(list=LISTNAME3, item_id='all'), None, dict(success=True)),
     ('get', dict(), None, []),
-    ('put', dict(list=LISTNAME), ITEM, dict(item_id=6, list_id=4, list_name=LISTNAME), dict(user_id=USERID2)),
+    ('put', dict(list=LISTNAME), ITEM, dict(id=6, list_id=4, list_name=LISTNAME, **ITEM), dict(user_id=USERID2)),
     ('put', dict(list=LISTNAME), ITEMS[1], dict(success=False, error='permission denied'),
      dict(user_id=None, expected_status=403)),
     ('get', dict(list=LISTNAME), None, dict(success=False, error='permission denied'),
@@ -73,9 +73,9 @@ BLUEPRINT_SCRIPT = [
     ('get', dict(list=LISTNAME, items=True), None,
      dict(id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTNOMETA, user_id=USERID2),
      dict(user_id=USERID2)),
-    ('put', dict(), ITEM, dict(item_id=7, list_id=5, list_name=MOCK_UUID)),
+    ('put', dict(), ITEM, dict(id=7, list_id=5, list_name=MOCK_UUID, **ITEM)),
 
-    ('put', dict(list=LISTNAME), ITEM, dict(item_id=8, list_id=6, list_name=LISTNAME)),
+    ('put', dict(list=LISTNAME), ITEM, dict(id=8, list_id=6, list_name=LISTNAME, **ITEM)),
     (
         'get', dict(list=LISTNAME, items=True), None,
         dict(id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTNOMETA, user_id=USERID2),

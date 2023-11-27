@@ -21,10 +21,10 @@ def single_test(obj, method, kwargs, expected):
 PERMISSIONS = dict(userid=USERID)
 CONTROLLERS_SCRIPT = [
     ('store_item', dict(list_name=LISTNAME, permissions=PERMISSIONS, item=ITEM),
-     dict(item_id=1, list_id=1, list_name=LISTNAME)),
+     dict(id=1, list_id=1, list_name=LISTNAME, **ITEM)),
     *[
         ('store_item', dict(list_name=LISTNAME, permissions=PERMISSIONS, item=item),
-         dict(item_id=i + 1, list_id=1, list_name=LISTNAME))
+         dict(id=i + 1, list_id=1, list_name=LISTNAME, **item))
         for i, item in enumerate(ITEMS)
     ],
     ('get', dict(list_name=LISTNAME, permissions={}, items=False, kind=None, list_user_id=None), dict(success=False)),
@@ -53,10 +53,10 @@ CONTROLLERS_SCRIPT = [
     ('get', dict(list_name=LISTNAME2, permissions=PERMISSIONS, items=True, kind=None, list_user_id=None),
      dict(id=2, name=LISTNAME2, **LISTMETA, items=[], user_id=USERID)),
     ('store_item', dict(list_name=LISTNAME2, permissions=PERMISSIONS, item=ITEM),
-     dict(item_id=4, list_id=2, list_name=LISTNAME2)),
+     dict(id=4, list_id=2, list_name=LISTNAME2, **ITEM)),
     ('store_item', dict(list_name=LISTNAME3, permissions={}, item=ITEM), dict(success=False)),
     ('store_item', dict(list_name=LISTNAME3, permissions=PERMISSIONS, item=ITEM),
-     dict(item_id=5, list_id=3, list_name=LISTNAME3)),
+     dict(id=5, list_id=3, list_name=LISTNAME3, **ITEM)),
 
     ('get', dict(list_name=LISTNAME2, permissions={}, items=False, kind=None, list_user_id=USERID),
      dict(id=2, name=LISTNAME2, **LISTMETA, user_id=USERID)),
@@ -98,7 +98,7 @@ CONTROLLERS_SCRIPT = [
     ('delete_all', dict(list_name=LISTNAME3 + 'x', permissions=PERMISSIONS), dict(success=False)),
     ('get', dict(list_name=None, permissions=PERMISSIONS, items=False, kind=None, list_user_id=None), []),
     ('store_item', dict(list_name=None, permissions=PERMISSIONS, item=ITEM),
-     dict(item_id=6, list_id=4, list_name=MOCK_UUID)),
+     dict(id=6, list_id=4, list_name=MOCK_UUID, **ITEM)),
 ]
 
 

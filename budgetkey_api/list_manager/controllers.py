@@ -26,11 +26,10 @@ class Controllers():
             return FAILED
         list_rec = self._get_or_create_list(list_name, user_id)
         added_item = self.models.add_item(list_rec['id'], item)
-        return dict(
-            item_id=added_item['id'],
-            list_id=list_rec['id'],
-            list_name=list_rec['name']
-        )
+        return self.process_dates(dict(
+            list_name=list_rec['name'],
+            **added_item,
+        ))
 
     def store_list(self, permissions, list_name, rec):
         user_id = permissions.get("userid")
