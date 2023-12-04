@@ -36,10 +36,7 @@ class Controllers():
         if not user_id:
             return FAILED
         list_rec = self._get_or_create_list(list_name, user_id)
-        self.models.update_list(list_rec['id'], rec)
-        return dict(
-            id=list_rec['id']
-        )
+        return self.process_dates(self.models.update_list(list_rec['id'], rec))
 
     def get_authenticated(self, list_name, user_id, items, kind):
         if list_name:

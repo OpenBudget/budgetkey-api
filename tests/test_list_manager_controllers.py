@@ -46,7 +46,10 @@ CONTROLLERS_SCRIPT = [
         dict(list_name=LISTNAME, permissions=PERMISSIONS, items=False, kind=None, list_user_id=None),
         dict(success=False)
     ),
-    ('store_list', dict(list_name=LISTNAME2, permissions=PERMISSIONS, rec=LISTMETA), dict(id=2)),
+    (
+        'store_list', dict(list_name=LISTNAME2, permissions=PERMISSIONS, rec=LISTMETA),
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA)
+    ),
     ('store_list', dict(list_name=LISTNAME2, permissions={}, rec=LISTMETA), dict(success=False)),
     ('get', dict(list_name=LISTNAME2, permissions=PERMISSIONS, items=False, kind=None, list_user_id=None),
      dict(id=2, name=LISTNAME2, **LISTMETA, user_id=USERID)),

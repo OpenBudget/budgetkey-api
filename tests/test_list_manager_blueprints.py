@@ -22,8 +22,9 @@ BLUEPRINT_SCRIPT = [
      dict(id=1, name=LISTNAME, items=[CONTROLLERS_OUTITEMS[0], CONTROLLERS_OUTITEMS[2]], **LISTNOMETA, user_id=USERID)),
     ('delete', dict(list=LISTNAME, item_id='all'), None, dict(success=True)),
     ('get', dict(list=LISTNAME), None, dict(success=False)),
-    ('put', dict(list=LISTNAME2, self=True), {'title': 'stub', 'properties': [1, 2, 3]}, dict(id=2)),
-    ('put', dict(list=LISTNAME2, self=True), LISTMETA, dict(id=2)),
+    ('put', dict(list=LISTNAME2, self=True), {'title': 'stub', 'properties': [1, 2, 3]},
+        dict(id=2, name=LISTNAME2, user_id=USERID, title='stub', properties=[1, 2, 3], kind=None, visibility=0)),
+    ('put', dict(list=LISTNAME2, self=True), LISTMETA, dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA)),
     ('get', dict(list=LISTNAME2), None, dict(id=2, name=LISTNAME2, **LISTMETA, user_id=USERID)),
     ('put', dict(list=LISTNAME2), ITEM, dict(id=4, list_id=2, list_name=LISTNAME2, **ITEM)),
     ('put', dict(), None, dict(success=False, error='missing required parameter'), dict(expected_status=415)),
@@ -88,7 +89,10 @@ BLUEPRINT_SCRIPT = [
     ),
     ('get', dict(list=LISTNAME, items=True, user_id=USERID), None, dict(success=False), dict(user_id=USERID2)),
     ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(success=False), dict(user_id=USERID)),
-    ('put', dict(list=LISTNAME, self=True), LISTMETA, dict(id=4), dict(user_id=USERID2)),
+    (
+        'put', dict(list=LISTNAME, self=True), LISTMETA,
+        dict(id=4, user_id=USERID2, name=LISTNAME, **LISTMETA), dict(user_id=USERID2)
+    ),
     ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(
         id=4, name=LISTNAME, items=[dict(id=6, list_id=4, **ITEM)], **LISTMETA, user_id=USERID2
     ), dict(user_id=USERID)),
