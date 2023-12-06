@@ -23,7 +23,7 @@ class Controllers():
     def store_item(self, permissions, list_name, item):
         user_id = permissions.get("userid")
         if not user_id:
-            return FAILED
+            return self.failed_list(list_name, user_id)
         list_rec = self._get_or_create_list(list_name, user_id)
         added_item = self.models.add_item(list_rec['id'], item)
         return self.process_dates(dict(
@@ -34,7 +34,7 @@ class Controllers():
     def store_list(self, permissions, list_name, rec):
         user_id = permissions.get("userid")
         if not user_id:
-            return FAILED
+            return self.failed_list(list_name, user_id)
         list_rec = self._get_or_create_list(list_name, user_id)
         return self.process_dates(self.models.update_list(list_rec['id'], rec))
 
@@ -42,7 +42,7 @@ class Controllers():
         if list_name:
             list_rec = self.models.get_list(list_name, user_id)
             if not list_rec:
-                return FAILED
+                return self.failed_list(list_name, user_id)
             if items:
                 list_rec['items'] = self.models.get_items(list_name, user_id)
             return self.process_dates(list_rec)
@@ -56,14 +56,14 @@ class Controllers():
         if list_name:
             list_rec = self.models.get_list(list_name, list_user_id)
             if not list_rec:
-                return FAILED
+                return self.failed_list(list_name, list_user_id)
             if not list_rec['visibility']:
-                return FAILED
+                return self.failed_list(list_name, list_user_id)
             if items:
                 list_rec['items'] = self.models.get_items(list_name, list_user_id)
             return self.process_dates(list_rec)
         else:
-            return FAILED
+            return self.failed_list(list_name, list_user_id)
 
     def get(self, permissions, list_name, items, kind, list_user_id):
         user_id = permissions.get('userid')
@@ -72,7 +72,7 @@ class Controllers():
         elif user_id:
             return self.get_authenticated(list_name, user_id, items, kind, )
         else:
-            return FAILED
+            return self.failed_list(list_name, list_user_id)
 
     def delete(self, permissions, item_id):
         user_id = permissions.get('userid')
@@ -88,10 +88,10 @@ class Controllers():
     def delete_all(self, permissions, list_name):
         user_id = permissions.get('userid')
         if not user_id:
-            return FAILED
+            return self.failed_list(list_name, user_id)
         list_rec = self.models.get_list(list_name, user_id)
         if not list_rec:
-            return FAILED
+            return self.failed_list(list_name, user_id)
         self.models.delete_list(list_rec['id'])
         return SUCCESS
 
@@ -107,3 +107,10 @@ class Controllers():
             return [self.process_dates(item) for item in obj]
         else:
             return obj
+
+    def failed_list(self, list_name, user_id):
+        return dict(
+            name=list_name,
+            user_id=user_id,
+            **FAILED
+        )

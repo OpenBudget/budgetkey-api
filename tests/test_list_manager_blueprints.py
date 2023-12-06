@@ -21,7 +21,7 @@ BLUEPRINT_SCRIPT = [
     ('get', dict(list=LISTNAME, items='true'), None,
      dict(id=1, name=LISTNAME, items=[CONTROLLERS_OUTITEMS[0], CONTROLLERS_OUTITEMS[2]], **LISTNOMETA, user_id=USERID)),
     ('delete', dict(list=LISTNAME, item_id='all'), None, dict(success=True)),
-    ('get', dict(list=LISTNAME), None, dict(success=False)),
+    ('get', dict(list=LISTNAME), None, dict(success=False, name=LISTNAME, user_id=USERID)),
     ('put', dict(list=LISTNAME2, self=True), {'title': 'stub', 'properties': [1, 2, 3]},
         dict(id=2, name=LISTNAME2, user_id=USERID, title='stub', properties=[1, 2, 3], kind=None, visibility=0)),
     ('put', dict(list=LISTNAME2, self=True), LISTMETA, dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA)),
@@ -63,7 +63,7 @@ BLUEPRINT_SCRIPT = [
      dict(user_id=None, expected_status=403)),
     ('get', dict(list=LISTNAME), None, dict(success=False, error='permission denied'),
      dict(user_id=None, expected_status=403)),
-    ('delete', dict(list=LISTNAME3, item_id='all'), None, dict(success=False)),
+    ('delete', dict(list=LISTNAME3, item_id='all'), None, dict(success=False, name=LISTNAME3, user_id=USERID)),
     ('delete', dict(list=LISTNAME3, item_id=6), None, dict(success=False)),
     ('delete', dict(list=LISTNAME3, item_id=61), None, dict(success=False)),
     ('delete', dict(list=LISTNAME3, item_id=61), None, dict(success=False), dict(user_id=USERID2)),
@@ -87,8 +87,8 @@ BLUEPRINT_SCRIPT = [
         dict(id=6, name=LISTNAME, items=[dict(id=8, list_id=6, **ITEM)], **LISTNOMETA, user_id=USERID),
         dict(user_id=USERID)
     ),
-    ('get', dict(list=LISTNAME, items=True, user_id=USERID), None, dict(success=False), dict(user_id=USERID2)),
-    ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(success=False), dict(user_id=USERID)),
+    ('get', dict(list=LISTNAME, items=True, user_id=USERID), None, dict(success=False, name=LISTNAME, user_id=USERID), dict(user_id=USERID2)),
+    ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(success=False, name=LISTNAME, user_id=USERID2), dict(user_id=USERID)),
     (
         'put', dict(list=LISTNAME, self=True), LISTMETA,
         dict(id=4, user_id=USERID2, name=LISTNAME, **LISTMETA), dict(user_id=USERID2)
