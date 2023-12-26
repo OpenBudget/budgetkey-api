@@ -1,6 +1,6 @@
 from .consts import (
     LISTNAME, LISTNAME2, LISTNAME3, USERID, USERID2, ITEM, ITEMS, LISTKIND,
-    LISTMETA, LISTNOMETA, CONTROLLERS_OUTITEMS, MOCK_UUID, time_checker, setup_db, mock_uuid
+    LISTMETA, LISTNOMETA, LISTMETA_V3, CONTROLLERS_OUTITEMS, MOCK_UUID, time_checker, setup_db, mock_uuid
 )
 
 import os
@@ -45,6 +45,15 @@ BLUEPRINT_SCRIPT = [
     ('get', dict(kind=LISTKIND), None, [
         dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA),
     ]),
+    ('get', dict(kind=LISTKIND, user_id=USERID), None, [], dict(user_id=USERID2)),
+    ('put', dict(list=LISTNAME2, self=True), LISTMETA_V3, dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA_V3)),
+    ('get', dict(kind=LISTKIND, user_id=USERID), None, [
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA_V3),
+    ], dict(user_id=USERID2)),
+    ('get', dict(kind=LISTKIND, user_id=USERID), None, [
+        dict(id=2, name=LISTNAME2, user_id=USERID, **LISTMETA_V3),
+    ], dict(user_id=None)),
+
     ('delete', dict(list=LISTNAME2, item_id='all'), None, dict(success=True)),
     ('get', dict(items=True), None, [
         dict(id=5, list_id=3, **ITEM),
@@ -87,8 +96,14 @@ BLUEPRINT_SCRIPT = [
         dict(id=6, name=LISTNAME, items=[dict(id=8, list_id=6, **ITEM)], **LISTNOMETA, user_id=USERID),
         dict(user_id=USERID)
     ),
-    ('get', dict(list=LISTNAME, items=True, user_id=USERID), None, dict(success=False, name=LISTNAME, user_id=USERID), dict(user_id=USERID2)),
-    ('get', dict(list=LISTNAME, items=True, user_id=USERID2), None, dict(success=False, name=LISTNAME, user_id=USERID2), dict(user_id=USERID)),
+    (
+        'get', dict(list=LISTNAME, items=True, user_id=USERID), None,
+        dict(success=False, name=LISTNAME, user_id=USERID), dict(user_id=USERID2)
+    ),
+    (
+        'get', dict(list=LISTNAME, items=True, user_id=USERID2), None,
+        dict(success=False, name=LISTNAME, user_id=USERID2), dict(user_id=USERID)
+    ),
     (
         'put', dict(list=LISTNAME, self=True), LISTMETA,
         dict(id=4, user_id=USERID2, name=LISTNAME, **LISTMETA), dict(user_id=USERID2)
@@ -103,8 +118,12 @@ BLUEPRINT_SCRIPT = [
         'get', dict(list=LISTNAME, items=True, user_id=None), None, dict(success=False, error='permission denied'),
         dict(user_id=None, expected_status=403)),
     (
-        'get', dict(list=None, items=True, user_id=USERID2), None, dict(success=False, error='permission denied'),
-        dict(user_id=None, expected_status=403)
+        'get', dict(list=None, items=True, user_id=USERID2), None, dict(success=False, name=None, user_id=USERID2),
+        dict(user_id=None)
+    ),
+    (
+        'get', dict(list=None, items=True, user_id=USERID2, kind=LISTKIND), None, [],
+        dict(user_id=None)
     ),
 ]
 

@@ -52,7 +52,7 @@ class Controllers():
             else:
                 return self.process_dates(self.models.get_all_lists(user_id, kind))
 
-    def get_unauthenticated(self, list_name, list_user_id, items):
+    def get_unauthenticated(self, list_name, list_user_id, items, kind=None):
         if list_name:
             list_rec = self.models.get_list(list_name, list_user_id)
             if not list_rec:
@@ -63,14 +63,17 @@ class Controllers():
                 list_rec['items'] = self.models.get_items(list_name, list_user_id)
             return self.process_dates(list_rec)
         else:
-            return self.failed_list(list_name, list_user_id)
+            if list_user_id and kind:
+                return self.process_dates(self.models.get_all_lists(list_user_id, kind=kind, visibility=2))
+            else:
+                return self.failed_list(list_name, list_user_id)
 
     def get(self, permissions, list_name, items, kind, list_user_id):
         user_id = permissions.get('userid')
-        if list_user_id:
-            return self.get_unauthenticated(list_name, list_user_id, items)
+        if list_user_id and list_user_id != user_id:
+            return self.get_unauthenticated(list_name, list_user_id, items, kind=kind)
         elif user_id:
-            return self.get_authenticated(list_name, user_id, items, kind, )
+            return self.get_authenticated(list_name, user_id, items, kind)
         else:
             return self.failed_list(list_name, list_user_id)
 

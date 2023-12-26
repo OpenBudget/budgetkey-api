@@ -3,6 +3,8 @@ import os
 import elasticsearch
 
 from apies import apies_blueprint
+from apies.query import Query
+
 
 from .caching import add_cache_header
 
@@ -58,6 +60,10 @@ EXCEPTION_TYPES = [
 ]
 
 
+class BudgetkeyQuery(Query):
+    ...
+
+
 def setup_search(app):
     blueprint = apies_blueprint(
         app,
@@ -85,7 +91,8 @@ def setup_search(app):
         multi_match_type='best_fields',
         multi_match_operator='and',
         text_field_rules=text_rules,
-        debug_queries=False
+        debug_queries=False,
+        query_cls=BudgetkeyQuery,
     )
     add_cache_header(blueprint, 600)
     app.register_blueprint(blueprint, url_prefix='/')

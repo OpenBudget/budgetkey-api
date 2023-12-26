@@ -52,7 +52,7 @@ def list_manager_blueprint(verifyer_args=None, enable_mock_oauth=None): #noqa
         list_user_id = request.values.get('user_id')
         list_name = request.values.get('list')
         if permissions is False:
-            if list_user_id and list_name:
+            if list_user_id:
                 permissions = {}
             else:
                 return PERMISSION_DENIED

@@ -1,4 +1,7 @@
 {
+    "python.testing.pytestArgs2": [
+        "tests", "-vv"
+    ],
     "python.testing.pytestArgs": [
         "-vv", "tests", "--cov=budgetkey_api", "--cov-report=xml", "--cov-report=html"
     ],

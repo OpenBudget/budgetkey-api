@@ -170,11 +170,13 @@ class Models():
             return list(map(object_as_dict,
                             session.query(Item).filter(Item.list_id.in_(list_ids)).order_by(Item.create_time)))
 
-    def get_all_lists(self, user_id, kind=None):
+    def get_all_lists(self, user_id, kind=None, visibility=None):
         with self.session_scope() as session:
             ret = session.query(List).filter_by(user_id=user_id)
             if kind:
                 ret = ret.filter_by(kind=kind)
+            if visibility is not None:
+                ret = ret.filter(List.visibility >= visibility)
             ret = [
                 object_as_dict(rec) for rec in ret
             ] if ret else None

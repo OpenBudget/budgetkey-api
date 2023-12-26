@@ -2,7 +2,8 @@ import datetime
 
 from .consts import (
     LISTNAME, LISTNAME2, LISTNAME3, USERID, USERID2, ITEM, ITEMS,
-    LISTMETA, LISTNOMETA, LISTKIND, MOCK_UUID, time_checker, setup_db
+    LISTMETA, LISTMETA_V3, LISTNOMETA, LISTKIND, LISTKIND2, MOCK_UUID,
+    time_checker, setup_db
 )
 
 
@@ -45,11 +46,21 @@ MODELS_SCRIPT = [
         dict(id=2, name=LISTNAME2, user_id=USERID, **LISTNOMETA),
         dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA),
     ]),
-    ('get_all_lists', dict(user_id=USERID2), [
+    ('update_list', dict(list_id=3, rec=LISTMETA_V3), dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA_V3)),
+    ('get_all_lists', dict(user_id=USERID, visibility=2), [
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA_V3),
+    ]),
+    ('get_all_lists', dict(user_id=USERID, visibility=3), [
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA_V3),
+    ]),
+    ('get_all_lists', dict(user_id=USERID, visibility=4), [
     ]),
     ('get_all_lists', dict(user_id=USERID, kind=LISTKIND), [
-        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA),
+        dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA_V3),
     ]),
+    ('get_all_lists', dict(user_id=USERID, kind=LISTKIND2), [
+    ]),
+    ('update_list', dict(list_id=3, rec=LISTMETA), dict(id=3, name=LISTNAME3, user_id=USERID, **LISTMETA)),
     ('get_list', dict(list_name=LISTNAME3, user_id=USERID), dict(id=3, name=LISTNAME3, user_id=USERID,  **LISTMETA)),
     ('get_list', dict(list_name=LISTNAME3, user_id=USERID2), None),
     ('get_all_items', dict(user_id=USERID), []),
