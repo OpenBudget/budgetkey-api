@@ -87,6 +87,11 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
         from .modules.list_manager import setup_list_manager
         setup_list_manager(app)
         log.info("Lists setup complete")
+    if 'simpledb' in services:
+        log.info("Setting up SimpleDB")
+        from .modules.simpledb import setup_simpledb
+        setup_simpledb(app)
+        log.info("SimpleDB setup complete")
 
     app.before_request(logging_before)
     app.after_request(logging_after)
