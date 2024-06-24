@@ -18,11 +18,11 @@ class SimpleDBBlueprint(Blueprint):
 
     TABLES = [
         'budget_items_data',
-        'budget_topics_data',
-        'supports_data',
-        'contracts_data',
-        'entities_data',
-        'tenders_data'
+        # 'budget_topics_data',
+        # 'supports_data',
+        # 'contracts_data',
+        # 'entities_data',
+        # 'tenders_data'
     ]
 
     DATAPACKAGE_URL = 'https://next.obudget.org/datapackages/simpledb'
