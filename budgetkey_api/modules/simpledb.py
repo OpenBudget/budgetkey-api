@@ -4,7 +4,7 @@ from contextlib import contextmanager
 
 import requests
 
-from flask import Blueprint, Response, request, send_file, abort
+from flask import Blueprint, abort
 from flask_jsonpify import jsonpify
 
 from sqlalchemy import create_engine, text
