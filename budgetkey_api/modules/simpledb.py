@@ -81,7 +81,7 @@ class SimpleDBBlueprint(Blueprint):
 
     def get_table(self, table):
         if table not in self.tables:
-            abort(404)
+            abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.keys())}')
         return jsonpify(self.tables[table])
 
     def get_tables(self):
