@@ -13,6 +13,7 @@ from .caching import add_cache_header
 
 ROOT_DIR = Path(__file__).parent
 
+
 class SimpleDBBlueprint(Blueprint):
 
     TABLES = [
@@ -59,15 +60,17 @@ class SimpleDBBlueprint(Blueprint):
         ret = dict()
         with self.connect_db() as connection:
             for table in self.TABLES:
-                ret[table] = dict()
+                rec = ret.setdefault(table, dict())
                 datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
                 package_descriptor = requests.get(datapackage_url).json()
+                details = package_descriptor['resources'][0]['details']
                 fields = package_descriptor['resources'][0]['schema']['fields']
-                ret['fields'] = [dict(
+                rec['details'] = details
+                rec['fields'] = [dict(
                     name=f['name'],
                     **f.get('details', {})
                 ) for f in fields]
-                ret[table]['schema'] = self.get_schema(connection, table)
+                rec['schema'] = self.get_schema(connection, table)
         return ret
 
     def get_schema(self, connection, table):
@@ -80,7 +83,7 @@ class SimpleDBBlueprint(Blueprint):
         if table not in self.tables:
             abort(404)
         return jsonpify(self.tables[table])
-    
+
     def get_tables(self):
         return jsonpify(list(self.tables.keys()))
 
