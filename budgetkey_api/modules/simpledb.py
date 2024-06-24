@@ -111,7 +111,7 @@ class SimpleDBBlueprint(Blueprint):
             size=10,
             offset=0,
             filters=filters,
-            score_threshold=0, 
+            score_threshold=0,
             match_type='cross_fields',
             match_operator='or',
         )
@@ -123,6 +123,7 @@ class SimpleDBBlueprint(Blueprint):
             results.append(rec)
         ret['search_results'] = results
         return jsonpify(ret)
+
 
 def setup_simpledb(app, es_blueprint):
     sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint)
