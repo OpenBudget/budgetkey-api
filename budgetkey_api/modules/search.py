@@ -96,3 +96,4 @@ def setup_search(app):
     )
     add_cache_header(blueprint, 600)
     app.register_blueprint(blueprint, url_prefix='/')
+    return blueprint

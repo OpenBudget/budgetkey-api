@@ -67,10 +67,11 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     services = services or 'auth,es,lists,db'
     services = services.split(',')
 
+    es_blueprint = None
     if 'es' in services:
         log.info("Setting up ES")
         from .modules.search import setup_search
-        setup_search(app)
+        es_blueprint = setup_search(app)
         log.info("ES setup complete")
     if 'db' in services:
         log.info("Setting up DB")
@@ -90,7 +91,7 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     if 'simpledb' in services:
         log.info("Setting up SimpleDB")
         from .modules.simpledb import setup_simpledb
-        setup_simpledb(app)
+        setup_simpledb(app, es_blueprint)
         log.info("SimpleDB setup complete")
 
     app.before_request(logging_before)

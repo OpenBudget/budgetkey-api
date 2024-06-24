@@ -3,8 +3,9 @@ from pathlib import Path
 from contextlib import contextmanager
 
 import requests
+import json
 
-from flask import Blueprint, abort
+from flask import Blueprint, abort, current_app, request
 from flask_jsonpify import jsonpify
 
 from sqlalchemy import create_engine, text
@@ -27,23 +28,32 @@ class SimpleDBBlueprint(Blueprint):
 
     DATAPACKAGE_URL = 'https://next.obudget.org/datapackages/simpledb'
 
-    def __init__(self, connection_string):
+    def __init__(self, connection_string, search_blueprint):
         super().__init__('simpledb', 'simpledb')
         self.connection_string = connection_string
-        self.tables = self.process_tables()
+        self.tables, self.search_params = self.process_tables()
+        self.search_blueprint = search_blueprint
         self.add_url_rule(
-            '/tables/<table>',
-            'table',
+            '/tables/<table>/info',
+            'table-info',
             self.get_table,
             methods=['GET']
         )
 
         self.add_url_rule(
             '/tables',
-            'tables',
+            'table-list',
             self.get_tables,
             methods=['GET']
         )
+
+        if search_blueprint:
+            self.add_url_rule(
+                '/tables/<table>/search',
+                'table-search',
+                self.simple_search,
+                methods=['GET']
+            )
 
     @contextmanager
     def connect_db(self):
@@ -58,20 +68,22 @@ class SimpleDBBlueprint(Blueprint):
 
     def process_tables(self):
         ret = dict()
+        sp = dict()
         with self.connect_db() as connection:
             for table in self.TABLES:
                 rec = ret.setdefault(table, dict())
                 datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
                 package_descriptor = requests.get(datapackage_url).json()
-                details = package_descriptor['resources'][0]['details']
+                description = package_descriptor['resources'][0]['description']
                 fields = package_descriptor['resources'][0]['schema']['fields']
-                rec['details'] = details
+                rec['description'] = description
                 rec['fields'] = [dict(
                     name=f['name'],
                     **f.get('details', {})
                 ) for f in fields]
                 rec['schema'] = self.get_schema(connection, table)
-        return ret
+                sp[table] = package_descriptor['resources'][0]['search']
+        return ret, sp
 
     def get_schema(self, connection, table):
         query = text(f"select generate_create_table_statement('{table}')")
@@ -87,8 +99,32 @@ class SimpleDBBlueprint(Blueprint):
     def get_tables(self):
         return jsonpify(list(self.tables.keys()))
 
+    def simple_search(self, table):
+        q = request.args.get('q', '')
+        filters = {}
+        filters = json.dumps([filters])
 
-def setup_simpledb(app):
-    sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'])
+        es_client = current_app.config['ES_CLIENT']
+        params = self.search_params[table]
+        ret = self.search_blueprint.controllers.search(
+            es_client, [params['index']], q,
+            size=10,
+            offset=0,
+            filters=filters,
+            score_threshold=0, 
+            match_type='cross_fields',
+            match_operator='or',
+        )
+        results = []
+        search_results = ret.get('search_results')
+        for rec in search_results:
+            rec = rec.get('source')
+            rec = {k1: rec.get(k2) for k1, k2 in params['field_map'].items()}
+            results.append(rec)
+        ret['search_results'] = results
+        return jsonpify(ret)
+
+def setup_simpledb(app, es_blueprint):
+    sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint)
     add_cache_header(sdb, 3600)
     app.register_blueprint(sdb, url_prefix='/api/')
