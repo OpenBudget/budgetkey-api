@@ -7,6 +7,7 @@ from .caching import add_cache_header
 MAX_ROWS = int(os.environ.get('MAX_ROWS', 1000))
 EXTERNAL_ADDRESS = os.environ.get('EXTERNAL_ADDRESS')
 
+
 def setup_query(app, cache):
     bp = apisql_blueprint(connection_string=os.environ['DATABASE_READONLY_URL'],
                           max_rows=MAX_ROWS, debug=False, cache=cache,
