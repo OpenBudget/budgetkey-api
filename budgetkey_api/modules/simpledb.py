@@ -108,12 +108,12 @@ class SimpleDBBlueprint(Blueprint):
         params = self.search_params[table]
         ret = self.search_blueprint.controllers.search(
             es_client, [params['index']], q,
-            size=10,
+            size=20,
             offset=0,
             filters=filters,
             score_threshold=0,
-            match_type='cross_fields',
-            match_operator='or',
+            # match_type='cross_fields',
+            # match_operator='or',
         )
         results = []
         search_results = ret.get('search_results')
