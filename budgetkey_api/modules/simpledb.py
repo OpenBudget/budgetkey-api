@@ -101,12 +101,13 @@ class SimpleDBBlueprint(Blueprint):
         return jsonpify(list(self.tables.keys()))
 
     def simple_search(self, table):
+        params = self.search_params[table]
+
         q = request.args.get('q', '')
         filters = params.get('filters', {}) or {}
         filters = json.dumps([filters])
 
         es_client = current_app.config['ES_CLIENT']
-        params = self.search_params[table]
         ret = self.search_blueprint.controllers.search(
             es_client, [params['index']], q,
             size=20,
