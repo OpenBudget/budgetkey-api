@@ -112,8 +112,8 @@ class SimpleDBBlueprint(Blueprint):
             offset=0,
             filters=filters,
             score_threshold=0,
-            # match_type='cross_fields',
-            # match_operator='or',
+            highlight=[],
+            snippets=[],
         )
         results = []
         search_results = ret.get('search_results')
