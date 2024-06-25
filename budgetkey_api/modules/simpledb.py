@@ -72,18 +72,22 @@ class SimpleDBBlueprint(Blueprint):
         sp = dict()
         with self.connect_db() as connection:
             for table in self.TABLES:
-                rec = ret.setdefault(table, dict())
-                datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
-                package_descriptor = requests.get(datapackage_url).json()
-                description = package_descriptor['resources'][0]['description']
-                fields = package_descriptor['resources'][0]['schema']['fields']
-                rec['description'] = description
-                rec['fields'] = [dict(
-                    name=f['name'],
-                    **f.get('details', {})
-                ) for f in fields]
-                rec['schema'] = self.get_schema(connection, table)
-                sp[table] = package_descriptor['resources'][0]['search']
+                try:
+                    rec = {}
+                    datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
+                    package_descriptor = requests.get(datapackage_url).json()
+                    description = package_descriptor['resources'][0]['description']
+                    fields = package_descriptor['resources'][0]['schema']['fields']
+                    rec['description'] = description
+                    rec['fields'] = [dict(
+                        name=f['name'],
+                        **f.get('details', {})
+                    ) for f in fields]
+                    rec['schema'] = self.get_schema(connection, table)
+                    ret[table] = rec
+                    sp[table] = package_descriptor['resources'][0]['search']
+                except Exception as e:
+                    print(f'Error processing table {table}: {e}')
         return ret, sp
 
     def get_schema(self, connection, table):
