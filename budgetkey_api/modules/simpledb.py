@@ -19,6 +19,7 @@ class SimpleDBBlueprint(Blueprint):
 
     TABLES = [
         'budget_items_data',
+        'budget_incomes_data',
         # 'budget_topics_data',
         # 'supports_data',
         # 'contracts_data',
@@ -101,7 +102,7 @@ class SimpleDBBlueprint(Blueprint):
 
     def simple_search(self, table):
         q = request.args.get('q', '')
-        filters = {}
+        filters = params.get('filters', {}) or {}
         filters = json.dumps([filters])
 
         es_client = current_app.config['ES_CLIENT']
