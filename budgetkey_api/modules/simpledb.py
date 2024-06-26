@@ -21,7 +21,7 @@ class SimpleDBBlueprint(Blueprint):
         'budget_items_data',
         'income_items_data',
         # 'budget_topics_data',
-        # 'supports_data',
+        'supports_data',
         # 'contracts_data',
         # 'entities_data',
         # 'tenders_data'
@@ -125,9 +125,16 @@ class SimpleDBBlueprint(Blueprint):
         results = []
         search_results = ret.get('search_results')
         for rec in search_results:
-            rec = rec.get('source')
-            rec = {k1: rec.get(k2) for k1, k2 in params['field_map'].items()}
-            results.append(rec)
+            src = rec.get('source')
+            res = {}
+            for k1, k2 in params['field_map'].items():
+                if isinstance(k2, str):
+                    k2 = [k2]
+                for k in k2:
+                    if k in src and src[k] is not None:
+                        res[k1] = src[k]
+                        break
+            results.append(res)
         ret['search_results'] = results
         return jsonpify(ret)
 
