@@ -141,5 +141,5 @@ class SimpleDBBlueprint(Blueprint):
 
 def setup_simpledb(app, es_blueprint):
     sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint)
-    add_cache_header(sdb, 3600)
+    add_cache_header(sdb, 600)
     app.register_blueprint(sdb, url_prefix='/api/')
