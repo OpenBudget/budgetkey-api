@@ -23,7 +23,7 @@ class SimpleDBBlueprint(Blueprint):
         # 'budget_topics_data',
         'supports_data',
         # 'contracts_data',
-        # 'entities_data',
+        'entities_data',
         # 'tenders_data'
     ]
 
