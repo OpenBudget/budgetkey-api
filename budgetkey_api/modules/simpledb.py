@@ -87,23 +87,22 @@ class TableHolder:
 
     def fetch_table(self, table):
         if table in self.TABLES:
-            with self.connect_db() as connection:
-                try:
-                    rec = {}
-                    datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
-                    response = requests.get(datapackage_url)
-                    hash = md5(response.content).hexdigest()
-                    package_descriptor = response.json()
-                    description = package_descriptor['resources'][0]['description']
-                    fields = package_descriptor['resources'][0]['schema']['fields']
-                    rec['description'] = description
-                    rec['fields'] = [dict(
-                        name=f['name'],
-                        **f.get('details', {})
-                    ) for f in fields]
-                    return rec, package_descriptor['resources'][0]['search'], hash
-                except Exception as e:
-                    print(f'Error processing table {table}: {e}')
+            try:
+                rec = {}
+                datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
+                response = requests.get(datapackage_url)
+                hash = md5(response.content).hexdigest()
+                package_descriptor = response.json()
+                description = package_descriptor['resources'][0]['description']
+                fields = package_descriptor['resources'][0]['schema']['fields']
+                rec['description'] = description
+                rec['fields'] = [dict(
+                    name=f['name'],
+                    **f.get('details', {})
+                ) for f in fields]
+                return rec, package_descriptor['resources'][0]['search'], hash
+            except Exception as e:
+                print(f'Error processing table {table}: {e}')
         return None, None, None
 
 class SimpleDBBlueprint(Blueprint):
