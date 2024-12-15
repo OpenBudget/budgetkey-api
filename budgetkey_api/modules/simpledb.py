@@ -105,6 +105,7 @@ class TableHolder:
                 print(f'Error processing table {table}: {e}')
         return None, None, None
 
+
 class SimpleDBBlueprint(Blueprint):
 
     def __init__(self, connection_string, search_blueprint):
