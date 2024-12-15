@@ -43,7 +43,7 @@ class TableHolder:
         return info
 
     def get_schema(self, table):
-        if table not in self.schemas:
+        if not self.schemas.get(table):
             self.schemas[table] = self.get_schema_from_db(table)
         return self.schemas[table]
 
