@@ -1,9 +1,11 @@
 import os
 from pathlib import Path
 from contextlib import contextmanager
+import datetime
 
 import requests
 import json
+from hashlib import md5
 
 from flask import Blueprint, abort, current_app, request
 from flask_jsonpify import jsonpify
@@ -15,7 +17,7 @@ from .caching import add_cache_header
 ROOT_DIR = Path(__file__).parent
 
 
-class SimpleDBBlueprint(Blueprint):
+class TableHolder:
 
     TABLES = [
         'budget_items_data',
@@ -28,11 +30,88 @@ class SimpleDBBlueprint(Blueprint):
     ]
 
     DATAPACKAGE_URL = 'https://next.obudget.org/datapackages/simpledb'
+    TIMEOUT = 600
+
+    def __init__(self, connection_string):
+        self.connection_string = connection_string
+        self.infos = dict()
+        self.schemas = dict()
+
+    def get_info(self, table):
+        info, _ = self.get_table_data(table)
+        info['schema'] = self.get_schema(table)
+        return info
+
+    def get_schema(self, table):
+        if table not in self.schemas:
+            self.schemas[table] = self.get_schema_from_db(table)
+        return self.schemas[table]
+
+    def get_search_params(self, table):
+        _, search = self.get_table_data(table)
+        return search
+
+    def get_table_data(self, table):
+        fetch = True
+        current_hash = None
+        if table in self.infos:
+            info, search, ts, current_hash = self.infos[table]
+            if (datetime.datetime.now() - ts).seconds < self.TIMEOUT:
+                fetch = False
+        if fetch:
+            info, search, hash = self.fetch_table(table)
+            if info is not None:
+                self.infos[table] = (info, search, datetime.datetime.now(), hash)
+                if current_hash != hash:
+                    self.schemas[table] = None
+        info, search, ts = self.infos[table]
+        return info, search
+
+    def get_schema_from_db(self, table):
+        with self.connect_db() as connection:
+            query = text(f"select generate_create_table_statement('{table}')")
+            result = connection.execute(query)
+            create_table = result.fetchone()[0]
+            return create_table
+
+    @contextmanager
+    def connect_db(self):
+        engine = create_engine(self.connection_string)
+        connection = engine.connect()
+        try:
+            yield connection
+        finally:
+            connection.close()
+            engine.dispose()
+            del engine
+
+    def fetch_table(self, table):
+        if table in self.TABLES:
+            with self.connect_db() as connection:
+                try:
+                    rec = {}
+                    datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
+                    response = requests.get(datapackage_url)
+                    hash = md5(response.content).hexdigest()
+                    package_descriptor = response.json()
+                    description = package_descriptor['resources'][0]['description']
+                    fields = package_descriptor['resources'][0]['schema']['fields']
+                    rec['description'] = description
+                    rec['fields'] = [dict(
+                        name=f['name'],
+                        **f.get('details', {})
+                    ) for f in fields]
+                    return rec, package_descriptor['resources'][0]['search'], hash
+                except Exception as e:
+                    print(f'Error processing table {table}: {e}')
+        return None, None, None
+
+class SimpleDBBlueprint(Blueprint):
 
     def __init__(self, connection_string, search_blueprint):
         super().__init__('simpledb', 'simpledb')
-        self.connection_string = connection_string
-        self.tables, self.search_params = self.process_tables()
+        self.tables = TableHolder(connection_string)
+
         self.search_blueprint = search_blueprint
         self.add_url_rule(
             '/tables/<table>/info',
@@ -56,56 +135,17 @@ class SimpleDBBlueprint(Blueprint):
                 methods=['GET']
             )
 
-    @contextmanager
-    def connect_db(self):
-        engine = create_engine(self.connection_string)
-        connection = engine.connect()
-        try:
-            yield connection
-        finally:
-            connection.close()
-            engine.dispose()
-            del engine
-
-    def process_tables(self):
-        ret = dict()
-        sp = dict()
-        with self.connect_db() as connection:
-            for table in self.TABLES:
-                try:
-                    rec = {}
-                    datapackage_url = f'{self.DATAPACKAGE_URL}/{table}/datapackage.json'
-                    package_descriptor = requests.get(datapackage_url).json()
-                    description = package_descriptor['resources'][0]['description']
-                    fields = package_descriptor['resources'][0]['schema']['fields']
-                    rec['description'] = description
-                    rec['fields'] = [dict(
-                        name=f['name'],
-                        **f.get('details', {})
-                    ) for f in fields]
-                    rec['schema'] = self.get_schema(connection, table)
-                    ret[table] = rec
-                    sp[table] = package_descriptor['resources'][0]['search']
-                except Exception as e:
-                    print(f'Error processing table {table}: {e}')
-        return ret, sp
-
-    def get_schema(self, connection, table):
-        query = text(f"select generate_create_table_statement('{table}')")
-        result = connection.execute(query)
-        create_table = result.fetchone()[0]
-        return create_table
-
     def get_table(self, table):
-        if table not in self.tables:
-            abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.keys())}')
-        return jsonpify(self.tables[table])
+        ret = self.tables.get_info(table)
+        if ret is None:
+            abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.TABLES)}')
+        return jsonpify(ret)
 
     def get_tables(self):
-        return jsonpify(list(self.tables.keys()))
+        return jsonpify(self.tables.TABLES)
 
     def simple_search(self, table):
-        params = self.search_params[table]
+        params = self.tables.get_search_params(table)
 
         q = request.args.get('q', '')
         filters = params.get('filters', {}) or {}
@@ -141,5 +181,5 @@ class SimpleDBBlueprint(Blueprint):
 
 def setup_simpledb(app, es_blueprint):
     sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint)
-    add_cache_header(sdb, 600)
+    add_cache_header(sdb, TableHolder.TIMEOUT)
     app.register_blueprint(sdb, url_prefix='/api/')
