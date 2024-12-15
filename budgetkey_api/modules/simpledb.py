@@ -64,7 +64,7 @@ class TableHolder:
                 self.infos[table] = (info, search, datetime.datetime.now(), hash)
                 if current_hash != hash:
                     self.schemas[table] = None
-        info, search, ts = self.infos[table]
+        info, search, _, _ = self.infos[table]
         return info, search
 
     def get_schema_from_db(self, table):
