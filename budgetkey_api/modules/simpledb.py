@@ -164,8 +164,10 @@ class SimpleDBBlueprint(Blueprint):
         if ret is None:
             abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.TABLES)}')
 
-        sql = request.args.get('query', '')
-        num_rows = request.args.get('page_size', 100)
+        sql = request.args.get('query')
+        if sql is None:
+            abort(400, 'Missing query parameter')
+        num_rows = request.args.get('page_size', 100) or 100
         ret = self.db_blueprint.controllers.query_db(sql, num_rows=num_rows, page_size=num_rows, page=0)
         if 'download_url' in ret and self.self.db_blueprint.external_url:
             ret['download_url'] = self.self.db_blueprint.external_url + ret['download_url']
