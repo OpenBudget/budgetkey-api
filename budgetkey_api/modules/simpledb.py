@@ -39,7 +39,8 @@ class TableHolder:
 
     def get_info(self, table):
         info, _ = self.get_table_data(table)
-        info['schema'] = self.get_schema(table)
+        if info:
+            info['schema'] = self.get_schema(table)
         return info
 
     def get_schema(self, table):
@@ -64,6 +65,8 @@ class TableHolder:
                 self.infos[table] = (info, search, datetime.datetime.now(), hash)
                 if current_hash != hash:
                     self.schemas[table] = None
+        if table not in self.infos:
+            return None, None
         info, search, _, _ = self.infos[table]
         return info, search
 
@@ -146,6 +149,8 @@ class SimpleDBBlueprint(Blueprint):
 
     def simple_search(self, table):
         params = self.tables.get_search_params(table)
+        if params is None:
+            abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.TABLES)}')
 
         q = request.args.get('q', '')
         filters = params.get('filters', {}) or {}
