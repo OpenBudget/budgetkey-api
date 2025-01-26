@@ -155,7 +155,7 @@ class SimpleDBBlueprint(Blueprint):
             abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.TABLES)}')
         if not isinstance(params, dict):
             ret = dict(
-                error='Search not available for table {table}, use DB query instead'
+                error=f'Search not available for table {table}, use DB query instead'
             )
             return jsonpify(ret)
 
