@@ -153,6 +153,11 @@ class SimpleDBBlueprint(Blueprint):
         params = self.tables.get_search_params(table)
         if params is None:
             abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.TABLES)}')
+        if not isinstance(params, dict):
+            ret = dict(
+                error='Search not available for table {table}, use DB query instead'
+            )
+            return jsonpify(ret)
 
         q = request.args.get('q', '')
         filters = params.get('filters', {}) or {}
