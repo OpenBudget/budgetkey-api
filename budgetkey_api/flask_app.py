@@ -76,7 +76,7 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     if 'db' in services:
         log.info("Setting up DB")
         from .modules.query import setup_query
-        setup_query(app, cache)
+        db_blueprint = setup_query(app, cache)
         log.info("DB setup complete")
     if 'auth' in services:
         log.info("Setting up Auth")
@@ -91,7 +91,7 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
     if 'simpledb' in services:
         log.info("Setting up SimpleDB")
         from .modules.simpledb import setup_simpledb
-        setup_simpledb(app, es_blueprint)
+        setup_simpledb(app, es_blueprint, db_blueprint)
         log.info("SimpleDB setup complete")
 
     app.before_request(logging_before)

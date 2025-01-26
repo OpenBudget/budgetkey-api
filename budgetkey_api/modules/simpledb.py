@@ -113,11 +113,13 @@ class TableHolder:
 
 class SimpleDBBlueprint(Blueprint):
 
-    def __init__(self, connection_string, search_blueprint):
+    def __init__(self, connection_string, search_blueprint, db_blueprint):
         super().__init__('simpledb', 'simpledb')
         self.tables = TableHolder(connection_string)
 
         self.search_blueprint = search_blueprint
+        self.db_blueprint = db_blueprint
+
         self.add_url_rule(
             '/tables/<table>/info',
             'table-info',
@@ -140,6 +142,14 @@ class SimpleDBBlueprint(Blueprint):
                 methods=['GET']
             )
 
+        if db_blueprint:
+            self.add_url_rule(
+                '/tables/<table>/query',
+                'table-query',
+                self.query_table,
+                methods=['GET']
+            )
+
     def get_table(self, table):
         ret = self.tables.get_info(table)
         if ret is None:
@@ -148,6 +158,18 @@ class SimpleDBBlueprint(Blueprint):
 
     def get_tables(self):
         return jsonpify(self.tables.TABLES)
+
+    def query_table(self, table):
+        ret = self.tables.get_info(table)
+        if ret is None:
+            abort(404, f'Table {table} not found. Available tables: {", ".join(self.tables.TABLES)}')
+
+        sql = request.args.get('query', '')
+        num_rows = request.args.get('page_size', 100)
+        ret = self.db_blueprint.controllers.query_db(sql, num_rows=num_rows, page_size=num_rows, page=0)
+        if 'download_url' in ret and self.self.db_blueprint.external_url:
+            ret['download_url'] = self.self.db_blueprint.external_url + ret['download_url']
+        return jsonpify(ret)
 
     def simple_search(self, table):
         params = self.tables.get_search_params(table)
@@ -191,7 +213,7 @@ class SimpleDBBlueprint(Blueprint):
         return jsonpify(ret)
 
 
-def setup_simpledb(app, es_blueprint):
-    sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint)
+def setup_simpledb(app, es_blueprint, db_blueprint):
+    sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint, db_blueprint)
     add_cache_header(sdb, TableHolder.TIMEOUT)
     app.register_blueprint(sdb, url_prefix='/api/')

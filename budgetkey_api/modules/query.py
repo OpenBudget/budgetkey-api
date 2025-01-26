@@ -14,3 +14,4 @@ def setup_query(app, cache):
                           external_url=f'https://{EXTERNAL_ADDRESS}/api')
     add_cache_header(bp, 3600)
     app.register_blueprint(bp, url_prefix='/api/')
+    return bp
