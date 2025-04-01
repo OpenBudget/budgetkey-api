@@ -21,7 +21,7 @@ ROOT_DIR = Path(__file__).parent
 def check_for_common_errors(table, sql):
     ret = []
     if table == 'budget_items_data':
-        if re.search(r'''code like .\d+%''', sql, re.I | re.M | re.S | re.U):
+        if re.search(r'''code like .[\d\.]+%''', sql, re.I | re.M | re.S | re.U):
             ret.append(
                 'Matching code with wildcard "%" is usually a mistake, as it fetches codes from different '
                 'budget levels. If you are aggregating budget amount, such a query would summarize a top '
