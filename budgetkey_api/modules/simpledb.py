@@ -21,12 +21,16 @@ ROOT_DIR = Path(__file__).parent
 def check_for_common_errors(table, sql):
     ret = []
     if table == 'budget_items_data':
-        if re.search(r'''code like .[\d\.]+%''', sql, re.I | re.M | re.S | re.U):
+        likes = re.search(r'''code like .([\d\.]+)%''', sql, re.I | re.M | re.S | re.U)
+        if likes:
+            code = likes.group(1)
+            code_parts = code.split('.')
             ret.append(
                 'Matching code with wildcard "%" is usually a mistake, as it fetches codes from different '
                 'budget levels. If you are aggregating budget amount, such a query would summarize a top '
                 'level item with all of its children, which would be counting the same item multiple times. '
-                'Use an exact match instead, e.g. "code = 12.34.56" or filter the query using the `level` field.'
+                f"Use an exact match instead, e.g. `code = '{code}'` or filter the query using the `level` field "
+                f'(in your case, `level={len(code_parts)}`).'
             )
         codes = re.findall(r'[^\d\.](\d\d(\.\d\d){0,3})[^\d\.]', sql, re.I | re.M | re.S | re.U)
         codes = [c[0] for c in codes]
