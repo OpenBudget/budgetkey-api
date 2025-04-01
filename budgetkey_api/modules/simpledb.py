@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from contextlib import contextmanager
 import datetime
@@ -15,6 +16,27 @@ from sqlalchemy import create_engine, text
 from .caching import add_cache_header
 
 ROOT_DIR = Path(__file__).parent
+
+
+def check_for_common_errors(table, sql):
+    ret = []
+    if table == 'budget_items_data':
+        if re.match('''code like .\d+%''', sql, re.I | re.M | re.S | re.U):
+            ret.append(
+                'Matching code with wildcard "%" is usually a mistake, as it fetches codes from different budget levels. '
+                'If you are aggregating budget amount, such a query would summarize a top level item with all of its children, '
+                'which would be counting the same item multiple times. Use an exact match instead, e.g. "code = 12.34.56" or filter the query using the `level` field.'
+            )
+        codes = re.findall(r'[^\d\.](\d\d(\.\d\d){0,3})[^\d\.]', sql, re.I | re.M | re.S | re.U)
+        codes = [c[0] for c in codes]
+        code_lengths = set(len(c) for c in codes)
+        if len(code_lengths) > 1:
+            ret.append(
+                'Matching codes with different levels is usually a mistake. '
+                'If you are aggregating budget amount, such a query would summarize a top level item on of its children, '
+                'which would be counting the same item multiple times. Use an exact match instead, e.g. "code = 12.34.56" or filter the query using the `level` field.'
+            )
+    return ret
 
 
 class TableHolder:
@@ -172,6 +194,9 @@ class SimpleDBBlueprint(Blueprint):
         ret = self.db_blueprint.controllers.query_db(sql, num_rows=num_rows, page_size=num_rows, page=0)
         if 'download_url' in ret and self.db_blueprint.external_url:
             ret['download_url'] = self.db_blueprint.external_url + ret['download_url']
+        warnings = check_for_common_errors(table, sql)
+        if warnings:
+            ret['warnings'] = warnings
         return jsonpify(ret)
 
     def simple_search(self, table):
