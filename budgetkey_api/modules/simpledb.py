@@ -42,7 +42,7 @@ def check_for_common_errors(table, sql):
                 'item multiple times. Use an exact match instead, e.g. "code = 12.34.56" or filter the query using the '
                 '`level` field.'
             )
-        group_by_item_url = re.search(r'group by .+ item_url', sql, re.I | re.M | re.S | re.U)
+        group_by_item_url = re.search(r'group by.+item_url', sql, re.I | re.M | re.S | re.U)
         if group_by_item_url:
             ret.append(
                 'Using "GROUP BY" with "item_url" may lead to unwanted results.'
