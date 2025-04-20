@@ -46,7 +46,8 @@ def check_for_common_errors(table, sql):
         if group_by_item_url:
             ret.append(
                 'Using "GROUP BY" with "item_url" may lead to unwanted results.'
-                'If you are aggregating multiple items, remove the "item_url" from the query or use "ARRAY_AGG(item_url)"'
+                'If you are aggregating multiple items, remove the "item_url" from the query '
+                'or use "ARRAY_AGG(item_url)"'
             )
     return ret
 
