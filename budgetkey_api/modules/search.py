@@ -11,7 +11,10 @@ from .caching import add_cache_header
 DATAPACKAGE_BASE = 'pkg-cache/{}/datapackage.json'
 ES_HOST = os.environ.get('ES_HOST', 'localhost')
 ES_PORT = int(os.environ.get('ES_PORT', '9200'))
+ES_CONNECTION = os.environ.get('ES_CONNECTION')
+ES_CERT_PATH = os.environ.get('ES_CERT_PATH')
 INDEX_NAME = os.environ.get('INDEX_NAME', 'budgetkey')
+ELASTIC_PASSWORD = os.environ.get('ELASTIC_PASSWORD')
 
 
 def text_rules(field):
@@ -65,13 +68,25 @@ class BudgetkeyQuery(Query):
 
 
 def setup_search(app):
+    client_params = dict(
+        timeout=60, request_timeout=60
+    )
+    if ES_CONNECTION:
+        client_params['hosts'] = ES_CONNECTION
+    else:
+        client_params['hosts'] = [dict(host=ES_HOST, port=ES_PORT)]
+    if ES_CERT_PATH:
+        client_params['ca_certs'] = ES_CERT_PATH
+    if ELASTIC_PASSWORD:
+        client_params['basic_auth'] = ('elastic', ELASTIC_PASSWORD)
+    client = elasticsearch.Elasticsearch(**client_params)
     blueprint = apies_blueprint(
         app,
         [
             DATAPACKAGE_BASE.format(doctype)
             for doctype in TYPES
         ],
-        elasticsearch.Elasticsearch([dict(host=ES_HOST, port=ES_PORT)], timeout=60),
+        client,
         dict(
             (t, f'{INDEX_NAME}__{t}{e}')
             for t, e in zip(TYPES, EXCEPTION_TYPES)
@@ -89,7 +104,7 @@ def setup_search(app):
             'simple_decision',
         },
         multi_match_type='best_fields',
-        multi_match_operator='and',
+        multi_match_operator='and', 
         text_field_rules=text_rules,
         debug_queries=False,
         query_cls=BudgetkeyQuery,
