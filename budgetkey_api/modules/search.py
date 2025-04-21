@@ -104,7 +104,7 @@ def setup_search(app):
             'simple_decision',
         },
         multi_match_type='best_fields',
-        multi_match_operator='and', 
+        multi_match_operator='and',
         text_field_rules=text_rules,
         debug_queries=False,
         query_cls=BudgetkeyQuery,
