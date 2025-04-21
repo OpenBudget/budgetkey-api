@@ -69,7 +69,7 @@ class BudgetkeyQuery(Query):
 
 def setup_search(app):
     client_params = dict(
-        timeout=60, request_timeout=60
+        request_timeout=60
     )
     if ES_CONNECTION:
         client_params['hosts'] = ES_CONNECTION
