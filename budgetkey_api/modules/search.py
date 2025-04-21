@@ -74,7 +74,7 @@ def setup_search(app):
     if ES_CONNECTION:
         client_params['hosts'] = ES_CONNECTION
     else:
-        client_params['hosts'] = [dict(host=ES_HOST, port=ES_PORT)]
+        client_params['hosts'] = [dict(host=ES_HOST, port=ES_PORT, scheme='http')]
     if ES_CERT_PATH:
         client_params['ca_certs'] = ES_CERT_PATH
     if ELASTIC_PASSWORD:
