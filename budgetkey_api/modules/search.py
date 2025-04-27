@@ -1,6 +1,7 @@
 import os
 
 import elasticsearch
+from openai import OpenAI
 
 from apies import apies_blueprint
 from apies.query import Query
@@ -64,7 +65,35 @@ EXCEPTION_TYPES = [
 
 
 class BudgetkeyQuery(Query):
-    ...
+
+    def __init__(self, search_indexes):
+        super().__init__(search_indexes)
+        api_key = os.environ.get('OPENAI_API_KEY')
+        if api_key:
+            self.openai_client = OpenAI(api_key=api_key)
+        else:
+            self.openai_client = None
+
+    def apply_term(self, term, text_fields, multi_match_type='most_fields', multi_match_operator='and'):
+        super().apply_term(term, text_fields, multi_match_type, multi_match_operator)
+        if term and len(term) >= 5 and self.openai_client:
+            embedding = self.openai_client.embeddings.create(
+                model="text-embedding-3-small",
+                input=term
+            )
+            embedding = embedding.data[0].embedding
+            for type_name in self.types:
+                chunks=dict(
+                    knn=dict(
+                        field="chunks.embeddings",
+                        query_vector=embedding,
+                        k=10,
+                        num_candidates=50,
+                        boost=0.5
+                    )
+                )
+                should = self.must(type_name)[-1]
+                should['bool']['should'].append(chunks)
 
 
 def setup_search(app):
