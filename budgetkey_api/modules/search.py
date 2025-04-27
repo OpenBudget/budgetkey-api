@@ -94,6 +94,7 @@ class BudgetkeyQuery(Query):
                 )
                 should = self.must(type_name)[-1]
                 should['bool']['should'].append(chunks)
+        return self
 
 
 def setup_search(app):
