@@ -84,12 +84,17 @@ class BudgetkeyQuery(Query):
             embedding = embedding.data[0].embedding
             for type_name in self.types:
                 chunks = dict(
-                    knn=dict(
-                        field="chunks.embeddings",
-                        query_vector=embedding,
-                        k=10,
-                        num_candidates=50,
-                        boost=0.5
+                    nested=dict(
+                        path="chunks",
+                        query=dict(
+                            knn=dict(
+                                field="chunks.embeddings",
+                                query_vector=embedding,
+                                k=10,
+                                num_candidates=50,
+                                boost=0.5
+                            )
+                        )
                     )
                 )
                 should = self.must(type_name)[-1]
