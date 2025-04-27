@@ -83,7 +83,7 @@ class BudgetkeyQuery(Query):
             )
             embedding = embedding.data[0].embedding
             for type_name in self.types:
-                chunks=dict(
+                chunks = dict(
                     knn=dict(
                         field="chunks.embeddings",
                         query_vector=embedding,
