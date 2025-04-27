@@ -136,7 +136,7 @@ def setup_search(app):
         multi_match_type='best_fields',
         multi_match_operator='and',
         text_field_rules=text_rules,
-        debug_queries=True,
+        debug_queries=False,
         query_cls=BudgetkeyQuery,
     )
     add_cache_header(blueprint, 600)
