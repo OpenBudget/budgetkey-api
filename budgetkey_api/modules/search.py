@@ -92,7 +92,7 @@ class BudgetkeyQuery(Query):
                                 query_vector=embedding,
                                 k=10,
                                 num_candidates=50,
-                                boost=0.5
+                                boost=0.2
                             )
                         )
                     )
