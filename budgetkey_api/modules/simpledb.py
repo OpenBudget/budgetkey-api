@@ -8,7 +8,7 @@ import requests
 import json
 from hashlib import md5
 
-from flask import Blueprint, abort, current_app, request
+from flask import Blueprint, abort, current_app, request, Response
 from flask_jsonpify import jsonpify
 
 from sqlalchemy import create_engine, text
@@ -148,6 +148,8 @@ class TableHolder:
 
 class SimpleDBBlueprint(Blueprint):
 
+    MAX_PAYLOAD_SIZE = 250 * 1024  # 250 KB
+
     def __init__(self, connection_string, search_blueprint, db_blueprint):
         super().__init__('simpledb', 'simpledb')
         self.tables = TableHolder(connection_string)
@@ -194,6 +196,30 @@ class SimpleDBBlueprint(Blueprint):
     def get_tables(self):
         return jsonpify(self.tables.TABLES)
 
+    def trim_json(self, data, max_size):
+        ret = dict(
+            download_url=data.get('download_url'),
+            warnings=data.get('warnings'),
+            num_rows=0,
+            total_rows=data.get('total', 0),
+            rows=[]
+        )
+        rows = data.get('rows', [])
+        ret_json = json.dumps(ret, ensure_ascii=False)
+        current_len = len(ret_json)
+        trimmed_rows = []
+        for row in rows:
+            row_json = json.dumps(row, ensure_ascii=False)
+            current_len += len(row_json) + 1
+            if current_len > max_size:
+                break
+            else:
+                trimmed_rows.append(row)
+        ret['num_rows'] = len(trimmed_rows)
+        ret['rows'] = trimmed_rows
+        ret_json = json.dumps(ret, ensure_ascii=False)
+        return ret_json
+
     def query_table(self, table):
         ret = self.tables.get_info(table)
         if ret is None:
@@ -210,7 +236,8 @@ class SimpleDBBlueprint(Blueprint):
         warnings = check_for_common_errors(table, sql)
         if warnings:
             ret['warnings'] = warnings
-        return jsonpify(ret)
+        ret = self.trim_json(ret, self.MAX_PAYLOAD_SIZE)
+        return Response(ret, mimetype='application/json')
 
     def simple_search(self, table):
         params = self.tables.get_search_params(table)
