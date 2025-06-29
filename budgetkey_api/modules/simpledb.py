@@ -285,7 +285,7 @@ class SimpleDBBlueprint(Blueprint):
         )
         ret = self.trim_json(ret, 'search_results', 'num_results', self.MAX_PAYLOAD_SIZE)
         return Response(ret, mimetype='application/json')
-        
+
 
 def setup_simpledb(app, es_blueprint, db_blueprint):
     sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint, db_blueprint)
