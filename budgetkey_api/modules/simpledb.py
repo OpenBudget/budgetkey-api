@@ -148,7 +148,7 @@ class TableHolder:
 
 class SimpleDBBlueprint(Blueprint):
 
-    MAX_PAYLOAD_SIZE = 250 * 1024  # 250 KB
+    MAX_PAYLOAD_SIZE = 120 * 1024  # 120 KB
 
     def __init__(self, connection_string, search_blueprint, db_blueprint):
         super().__init__('simpledb', 'simpledb')
@@ -196,28 +196,22 @@ class SimpleDBBlueprint(Blueprint):
     def get_tables(self):
         return jsonpify(self.tables.TABLES)
 
-    def trim_json(self, data, max_size):
-        ret = dict(
-            download_url=data.get('download_url'),
-            warnings=data.get('warnings'),
-            num_rows=0,
-            total_rows=data.get('total', 0),
-            rows=[]
-        )
-        rows = data.get('rows', [])
-        ret_json = json.dumps(ret, ensure_ascii=False)
+    def trim_json(self, data, rows_field, count_field, max_size):
+        rows = data.get(rows_field, [])
+        data[rows_field] = []
+        ret_json = json.dumps(data, ensure_ascii=False)
         current_len = len(ret_json)
         trimmed_rows = []
         for row in rows:
             row_json = json.dumps(row, ensure_ascii=False)
-            current_len += len(row_json) + 1
+            current_len += len(row_json) + 2
             if current_len > max_size:
                 break
             else:
                 trimmed_rows.append(row)
-        ret['num_rows'] = len(trimmed_rows)
-        ret['rows'] = trimmed_rows
-        ret_json = json.dumps(ret, ensure_ascii=False)
+        data[count_field] = len(trimmed_rows)
+        data[rows_field] = trimmed_rows
+        ret_json = json.dumps(data, ensure_ascii=False)
         return ret_json
 
     def query_table(self, table):
@@ -236,7 +230,14 @@ class SimpleDBBlueprint(Blueprint):
         warnings = check_for_common_errors(table, sql)
         if warnings:
             ret['warnings'] = warnings
-        ret = self.trim_json(ret, self.MAX_PAYLOAD_SIZE)
+        ret = dict(
+            download_url=ret.get('download_url'),
+            warnings=ret.get('warnings'),
+            num_rows=ret.get('page_size', 0),
+            total_rows=ret.get('total', 0),
+            rows=ret.get('rows', []),
+        )
+        ret = self.trim_json(ret, 'rows', 'num_rows', self.MAX_PAYLOAD_SIZE)
         return Response(ret, mimetype='application/json')
 
     def simple_search(self, table):
@@ -277,9 +278,14 @@ class SimpleDBBlueprint(Blueprint):
                         res[k1] = src[k]
                         break
             results.append(res)
-        ret['search_results'] = results
-        return jsonpify(ret)
-
+        ret = dict(
+            search_results=results,
+            num_results=len(results),
+            total_results=ret.get('search_counts', {}).get('total_overall', 0),
+        )
+        ret = self.trim_json(ret, 'search_results', 'num_results', self.MAX_PAYLOAD_SIZE)
+        return Response(ret, mimetype='application/json')
+        
 
 def setup_simpledb(app, es_blueprint, db_blueprint):
     sdb = SimpleDBBlueprint(os.environ['DATABASE_READONLY_URL'], es_blueprint, db_blueprint)
