@@ -281,7 +281,7 @@ class SimpleDBBlueprint(Blueprint):
         ret = dict(
             search_results=results,
             num_results=len(results),
-            total_results=ret.get('search_counts', {}).get('total_overall', 0),
+            total_results=ret.get('search_counts', {}).get('_current', {}).get('total_overall', 0),
         )
         ret = self.trim_json(ret, 'search_results', 'num_results', self.MAX_PAYLOAD_SIZE)
         return Response(ret, mimetype='application/json')
