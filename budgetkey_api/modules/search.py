@@ -102,6 +102,12 @@ class BudgetkeyQuery(Query):
                 should['bool']['should'].append(chunks)
         return self
 
+    def process_extra(self, return_value, response):
+        search_results = return_value['search_results']
+        for result in search_results:
+            source = result['source']
+            source.pop('chunks', None)
+
 
 def setup_search(app):
     client_params = dict(
