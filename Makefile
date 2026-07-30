@@ -21,7 +21,7 @@ release:
 test:
 	pylama
 	python prepare.py
-	py.test
+	py.test -p no:pylama
 
 version:
 	@echo $(VERSION)
