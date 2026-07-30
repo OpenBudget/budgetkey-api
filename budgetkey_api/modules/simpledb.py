@@ -65,6 +65,7 @@ class TableHolder:
         # 'tenders_data',
         'budgetary_change_requests_data',
         'budgetary_change_transactions_data',
+        'government_decisions_data',
     ]
 
     DATAPACKAGE_URL = 'https://next.obudget.org/datapackages/simpledb'
