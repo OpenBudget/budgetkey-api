@@ -94,6 +94,12 @@ def create_flask_app(session_file_dir=None, cache_dir=None, services=None):
         setup_simpledb(app, es_blueprint, db_blueprint)
         log.info("SimpleDB setup complete")
 
+    # No external dependencies, so always available
+    log.info("Setting up DataRecords")
+    from .modules.datarecords import setup_datarecords
+    setup_datarecords(app, cache)
+    log.info("DataRecords setup complete")
+
     app.before_request(logging_before)
     app.after_request(logging_after)
 
