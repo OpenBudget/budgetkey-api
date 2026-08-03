@@ -5,7 +5,7 @@ import requests
 from flask import Blueprint, abort
 from flask_jsonpify import jsonpify
 
-from .caching import add_cache_header
+from .caching import add_cache_header, add_public_cors_header
 
 DATARECORDS_URL = os.environ.get('DATARECORDS_URL', 'https://data-input.obudget.org/api/datarecords')
 TIMEOUT = 24 * 60 * 60  # one day
@@ -52,6 +52,7 @@ class DataRecordsBlueprint(Blueprint):
 
 def setup_datarecords(app, cache):
     bp = DataRecordsBlueprint(cache)
+    add_public_cors_header(bp)
     add_cache_header(bp, TIMEOUT)
     app.register_blueprint(bp, url_prefix='/api/')
     return bp
