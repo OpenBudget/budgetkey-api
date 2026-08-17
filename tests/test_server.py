@@ -29,9 +29,15 @@ def test_server_init():
     assert resp.status_code == 403
     assert resp.headers.get('Cache-Control') == 'no-cache'
 
-    resp = client.get('/api/query?query=select *')
+    resp = client.get('/api/query?query=select 1 as x')
     assert resp.status_code == 200
     assert resp.headers['Cache-Control'] == 'max-age=3600'
+
+    # A failed query is reported as a 200 with success=false - it must not be cached
+    resp = client.get('/api/query?query=select *')
+    assert resp.status_code == 200
+    assert resp.get_json()['success'] is False
+    assert resp.headers['Cache-Control'] == 'no-cache'
 
     resp = client.get('/wait/1')
     assert resp.status_code == 200
