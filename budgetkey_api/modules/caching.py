@@ -18,9 +18,20 @@ def add_public_cors_header(app):
     app.after_request(func)
 
 
+def is_failure_response(response):
+    # Endpoints signal errors with a 200 + {'success': False} body, so the status code
+    # alone isn't enough to tell a cacheable response from a failed one.
+    if response.is_streamed or not response.is_json:
+        return False
+    payload = response.get_json(silent=True)
+    return isinstance(payload, dict) and payload.get('success') is False
+
+
 def add_cache_header(app, max_age):
     def func(response):
-        if max_age > 0 and response.status_code == 200:
+        if is_failure_response(response):
+            response.cache_control.no_cache = True
+        elif max_age > 0 and response.status_code == 200:
             response.cache_control.max_age = max_age
         if max_age == 0:
             response.cache_control.no_cache = True
