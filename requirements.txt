@@ -1,5 +1,6 @@
 gunicorn
-sqlalchemy
+# sqlalchemy 2.1 made psycopg (v3) the default postgresql:// driver; we ship psycopg2-binary
+sqlalchemy<2.1
 flask>=3.1
 flask-cors
 Flask-Caching
