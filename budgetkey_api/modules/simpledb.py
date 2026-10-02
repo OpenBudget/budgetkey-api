@@ -18,11 +18,18 @@ from .caching import add_cache_header
 ROOT_DIR = Path(__file__).parent
 
 
+# A budget code literal: '20', '20.62', '20.62.01' or '20.62.01.02', in quotes, as it appears in SQL.
+QUOTED_CODE_RE = re.compile(r"'(\d\d(?:\.\d\d){0,3})'")
+# An explicit level filter (level = 4, level IN (3, 4)) makes mixing code lengths in a query safe.
+LEVEL_FILTER_RE = re.compile(r'\blevel\s*(=|in\b)', re.I)
+
+
 def check_for_common_errors(table, sql):
     ret = []
     if table == 'budget_items_data':
+        has_level_filter = LEVEL_FILTER_RE.search(sql) is not None
         likes = re.search(r'''code like .([\d\.]+)%''', sql, re.I | re.M | re.S | re.U)
-        if likes:
+        if likes and not has_level_filter:
             code = likes.group(1)
             code_parts = code.split('.')
             ret.append(
@@ -32,10 +39,9 @@ def check_for_common_errors(table, sql):
                 f"Use an exact match instead, e.g. `code = '{code}'` or filter the query using the `level` field "
                 f'(in your case, `level={len(code_parts)}`).'
             )
-        codes = re.findall(r'[^\d\.](\d\d(\.\d\d){0,3})[^\d\.]', sql, re.I | re.M | re.S | re.U)
-        codes = [c[0] for c in codes]
-        code_lengths = set(len(c) for c in codes)
-        if len(code_lengths) > 1:
+        # Only quoted literals are codes: bare numbers like `LIMIT 10` or `LEFT(code, 10)` must not count.
+        code_lengths = set(len(c) for c in QUOTED_CODE_RE.findall(sql))
+        if len(code_lengths) > 1 and not has_level_filter:
             ret.append(
                 'Matching codes with different levels is usually a mistake. If you are aggregating budget amount, '
                 'such a query would summarize a top level item on of its children, which would be counting the same '
