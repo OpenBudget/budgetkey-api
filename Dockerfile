@@ -1,6 +1,6 @@
-FROM python:3.12-slim-bullseye
+FROM python:3.12-slim-bookworm
 
-RUN apt-get update && apt-get install -y htop nano curl procps grep findutils && \
+RUN apt-get update && apt-get install -y adduser htop nano curl procps grep findutils && \
     adduser --disabled-password --home /app api && update-ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
