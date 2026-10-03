@@ -53,6 +53,7 @@ TYPES = [
     'muni_budgets',
     'muni_tenders',
     'support_programs',
+    'analysis',
 ]
 
 
