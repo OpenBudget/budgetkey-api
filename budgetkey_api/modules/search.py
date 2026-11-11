@@ -59,6 +59,16 @@ TYPES = [
 ]
 
 
+# Fields a search result card never shows, dropped from each result to keep the response small: the embeddings'
+# chunks, and the related-items links (item page only; up to tens of KB per doc).
+DROPPED_FIELDS = ['chunks', 'related_items', 'mentioned_in']
+# ... and, per type, the item page's bulk: an audit's full text runs to hundreds of KB.
+DROPPED_FIELDS_BY_TYPE = {
+    'state_comptroller_audits': ['text', 'findings', 'findings_text', 'earlier_reports', 'key_figures'],
+    'state_comptroller_issues': ['timeline', 'timeline_text'],
+}
+
+
 EXCEPTIONS = {
     # 'contract-spending': '20191226180556919439_33d16b3f',
 }
@@ -109,7 +119,8 @@ class BudgetkeyQuery(Query):
         search_results = return_value['search_results']
         for result in search_results:
             source = result['source']
-            source.pop('chunks', None)
+            for field in DROPPED_FIELDS + DROPPED_FIELDS_BY_TYPE.get(result.get('type'), []):
+                source.pop(field, None)
 
 
 def setup_search(app):
