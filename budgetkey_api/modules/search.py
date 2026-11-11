@@ -54,8 +54,8 @@ TYPES = [
     'muni_tenders',
     'support_programs',
     'analysis',
+    # Audits only: an issue repeats one of its audit's findings, and the audit pages link to the issue pages
     'state_comptroller_audits',
-    'state_comptroller_issues',
 ]
 
 
@@ -65,7 +65,6 @@ DROPPED_FIELDS = ['chunks', 'related_items', 'mentioned_in']
 # ... and, per type, the item page's bulk: an audit's full text runs to hundreds of KB.
 DROPPED_FIELDS_BY_TYPE = {
     'state_comptroller_audits': ['text', 'findings', 'findings_text', 'earlier_reports', 'key_figures'],
-    'state_comptroller_issues': ['timeline', 'timeline_text'],
 }
 
 
