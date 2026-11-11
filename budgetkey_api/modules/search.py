@@ -54,6 +54,8 @@ TYPES = [
     'muni_tenders',
     'support_programs',
     'analysis',
+    'state_comptroller_audits',
+    'state_comptroller_issues',
 ]
 
 
